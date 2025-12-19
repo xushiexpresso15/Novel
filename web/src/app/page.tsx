@@ -1,6 +1,8 @@
+
 import { Editor } from "@/components/editor/Editor"
 import { Sidebar } from "@/components/sidebar/Sidebar"
 import { RightSidebar } from "@/components/sidebar/RightSidebar" // Add import
+import { UserProfile } from "@/components/UserProfile" // Import UserProfile
 import { Button } from "@/components/ui/button"
 import { Users } from "lucide-react"
 
@@ -20,6 +22,7 @@ export default function Home() {
         {/* Top Navigation / Toolbar (Floating) */}
         <div className="sticky top-0 z-20 px-8 py-4 flex items-center justify-end pointer-events-none">
           <div className="pointer-events-auto flex items-center gap-2">
+            <UserProfile /> {/* New Auth Button */}
             <Button variant="ghost" className="rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-md shadow-sm">
               <Users className="w-4 h-4 mr-2" />
               協作 (0)
