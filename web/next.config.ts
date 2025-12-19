@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: 'export',
   // GitHub Pages usually requires a basePath if not using a custom domain.
   // We leave it commented out for the user to enable if needed.
-  // basePath: '/repo-name', 
+  basePath: '/Novel',
   images: {
     unoptimized: true, // Required for static export
   },
