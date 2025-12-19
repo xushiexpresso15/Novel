@@ -1,3 +1,1 @@
-**WEBSITE**\n
-
-https://xushiexpresso15.github.io/Novel/
+**WEBSITE：**https://xushiexpresso15.github.io/Novel/
