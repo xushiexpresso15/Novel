@@ -6,6 +6,7 @@ interface AuthState {
     user: User | null
     isLoading: boolean
     checkUser: () => Promise<void>
+    initializeAuthListener: () => any
     signInWithGoogle: () => Promise<void>
     signOut: () => Promise<void>
 }
@@ -15,24 +16,30 @@ export const useAuthStore = create<AuthState>((set) => ({
     isLoading: true,
     checkUser: async () => {
         try {
-            console.log('checkUser: starting')
+            console.log('checkUser: manual check')
             set({ isLoading: true })
             const { data: { session }, error } = await supabase.auth.getSession()
-            if (error) console.error('checkUser: session error', error)
+            if (error) console.error('checkUser: error', error)
 
-            console.log('checkUser: session retrieved', session?.user?.id)
-            set({ user: session?.user || null })
-
-            supabase.auth.onAuthStateChange((event, session) => {
-                console.log('checkUser: auth state change', event)
-                set({ user: session?.user || null })
+            // Only update if different
+            set((state) => {
+                const newUser = session?.user || null
+                if (state.user?.id === newUser?.id) return state
+                return { user: newUser }
             })
         } catch (error) {
             console.error('Check user error:', error)
         } finally {
-            console.log('checkUser: logging finished')
             set({ isLoading: false })
         }
+    },
+    initializeAuthListener: () => {
+        console.log('Auth Listener: initializing')
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth Listener:', event)
+            set({ user: session?.user || null, isLoading: false })
+        })
+        return subscription
     },
     signInWithGoogle: async () => {
         try {

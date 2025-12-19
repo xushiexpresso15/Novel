@@ -7,10 +7,19 @@ import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 
 export default function Home() {
-  const { user, isLoading, checkUser } = useAuthStore()
+  const { user, isLoading, checkUser, initializeAuthListener } = useAuthStore()
 
   useEffect(() => {
+    // Initial check
     checkUser()
+
+    // Listen for changes
+    const subscription = initializeAuthListener()
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription?.unsubscribe()
+    }
   }, [])
 
   if (isLoading) {

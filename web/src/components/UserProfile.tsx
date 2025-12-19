@@ -17,9 +17,8 @@ import { LogOut, User as UserIcon, Loader2 } from 'lucide-react'
 export function UserProfile() {
     const { user, checkUser, signInWithGoogle, signOut, isLoading } = useAuthStore()
 
-    useEffect(() => {
-        checkUser()
-    }, [checkUser])
+    // Auth state is managed globally by page.tsx
+
 
     if (isLoading) {
         return (
