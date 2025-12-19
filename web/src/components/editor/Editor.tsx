@@ -3,13 +3,13 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import Collaboration from '@tiptap/extension-collaboration'
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+// import Collaboration from '@tiptap/extension-collaboration'
+// import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import { IndentParagraph } from './IndentParagraph'
 import { LoreNode } from './LoreNode' // Import LoreNode
-import { HocuspocusProvider } from '@hocuspocus/provider'
-import { IndexeddbPersistence } from 'y-indexeddb'
-import * as Y from 'yjs'
+// import { HocuspocusProvider } from '@hocuspocus/provider'
+// import { IndexeddbPersistence } from 'y-indexeddb'
+// import * as Y from 'yjs'
 import { cn } from '@/lib/utils'
 import { useChapterStore } from '@/store/useChapterStore'
 import { useEffect, useState, useMemo, useRef } from 'react'
@@ -25,10 +25,10 @@ const getRandomColor = () => {
 export function Editor() {
     const { activeChapterId } = useChapterStore()
     const [status, setStatus] = useState('connecting')
-    const [provider, setProvider] = useState<HocuspocusProvider | null>(null)
+    const [provider, setProvider] = useState<any | null>(null)
 
     // Create YJS document
-    const ydoc = useMemo(() => new Y.Doc(), [])
+    // const ydoc = useMemo(() => new Y.Doc(), [])
 
     // User info (Mock for MVP)
     const user = useMemo(() => ({
@@ -69,7 +69,7 @@ export function Editor() {
             // newProvider.destroy()
             // persistence.destroy()
         }
-    }, [activeChapterId, ydoc])
+    }, [activeChapterId])
 
     // Effect to handle toasts separately based on status state change to avoid spam
     useEffect(() => {
