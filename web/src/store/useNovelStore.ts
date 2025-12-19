@@ -12,7 +12,9 @@ interface NovelState {
     novels: Novel[]
     isLoading: boolean
     error: string | null
+    viewMode: 'landing' | 'dashboard'
     selectedNovelId: string | null
+    setViewMode: (mode: 'landing' | 'dashboard') => void
     fetchNovels: () => Promise<void>
     createNovel: () => Promise<void>
     selectNovel: (id: string | null) => void
@@ -23,7 +25,10 @@ export const useNovelStore = create<NovelState>((set, get) => ({
     novels: [],
     isLoading: false,
     error: null,
+    viewMode: 'landing', // Default to landing
     selectedNovelId: null,
+
+    setViewMode: (mode) => set({ viewMode: mode }),
 
     fetchNovels: async () => {
         set({ isLoading: true, error: null })
