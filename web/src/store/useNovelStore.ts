@@ -37,9 +37,9 @@ export const useNovelStore = create<NovelState>((set, get) => ({
             if (error) throw error
             console.log('fetchNovels: success', data.length)
             set({ novels: data || [] })
-        } catch (error: any) {
-            console.error('Error fetching novels:', error)
-            set({ error: error.message || 'Failed to fetch novels' })
+        } catch (clientError: any) {
+            console.error('Supabase Client failed:', clientError)
+            set({ error: `Network Error: ${clientError.message}. Please disable AdBlockters.` })
         } finally {
             set({ isLoading: false })
         }
