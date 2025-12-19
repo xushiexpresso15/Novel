@@ -45,24 +45,18 @@ export function Editor() {
         // and fall back to IndexedDB (Offline mode).
         // Actually, for a pure static demo without a backend, let's just use localhost
         // and let it fail to "Offline" state if deployed.
-        const newProvider = new HocuspocusProvider({
-            url: 'ws://127.0.0.1:1234', // Keeps localhost for local dev
-            name: `novel-chapter-${activeChapterId}`,
-            document: ydoc,
-            onStatus: (event) => {
-                setStatus(event.status)
-                // if (event.status === 'disconnected') {
-                //    // Only show error if we were previously connected or if explicitly failing
-                //    // toast.error('已斷線 (Offline Mode)', { description: '別擔心，變更已儲存於本地。' })
-                // } else if (event.status === 'connected') {
-                //    // toast.success('已連線 (Online)', { description: '多人協作功能已啟用。' })
-                // }
-            },
-            // Quietly fail on GH pages to avoid console spam if desired,
-            // but Hocuspocus defaults are fine.
-        })
+        // 1. Connect to WebSocket Server (Hocuspocus)
+        // const newProvider = new HocuspocusProvider({
+        //    url: 'ws://127.0.0.1:1234',
+        //    name: `novel-chapter-${activeChapterId}`,
+        //    document: ydoc,
+        //    onStatus: (event) => {
+        //        setStatus(event.status)
+        //    },
+        // })
 
-        setProvider(newProvider)
+        // setProvider(newProvider)
+        setProvider(null)
 
         // 2. Setup Local Persistence (IndexedDB) for Offline Support
         const persistence = new IndexeddbPersistence(
@@ -72,7 +66,7 @@ export function Editor() {
 
         // Cleanup on verify/unmount
         return () => {
-            newProvider.destroy()
+            // newProvider.destroy()
             persistence.destroy()
         }
     }, [activeChapterId, ydoc])
