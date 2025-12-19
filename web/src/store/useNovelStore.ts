@@ -11,6 +11,7 @@ export interface Novel {
 interface NovelState {
     novels: Novel[]
     isLoading: boolean
+    error: string | null
     selectedNovelId: string | null
     fetchNovels: () => Promise<void>
     createNovel: () => Promise<void>
@@ -21,20 +22,24 @@ interface NovelState {
 export const useNovelStore = create<NovelState>((set, get) => ({
     novels: [],
     isLoading: false,
+    error: null,
     selectedNovelId: null,
 
     fetchNovels: async () => {
-        set({ isLoading: true })
+        set({ isLoading: true, error: null })
         try {
+            console.log('fetchNovels: fetching...')
             const { data, error } = await supabase
                 .from('novels')
                 .select('*')
                 .order('created_at', { ascending: false })
 
             if (error) throw error
+            console.log('fetchNovels: success', data.length)
             set({ novels: data || [] })
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching novels:', error)
+            set({ error: error.message || 'Failed to fetch novels' })
         } finally {
             set({ isLoading: false })
         }

@@ -31,6 +31,15 @@ export function NovelList() {
                 <div className="mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold mb-2">Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || 'Writer'}.</h2>
                     <p className="text-muted-foreground text-lg">Ready to continue your masterpiece?</p>
+
+                    {/* Error Banner */}
+                    {/* @ts-ignore */}
+                    {useNovelStore.getState().error && (
+                        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg">
+                            {/* @ts-ignore */}
+                            Error: {useNovelStore.getState().error}
+                        </div>
+                    )}
                 </div>
 
                 {/* Grid */}
