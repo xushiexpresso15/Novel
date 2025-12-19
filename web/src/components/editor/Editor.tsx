@@ -84,18 +84,17 @@ export function Editor() {
         extensions: [
             StarterKit.configure({
                 paragraph: false,
-                // @ts-ignore - history option exists in runtime but might be missing in type definition depending on version
-                history: false,
+                // history: false, // Re-enable history for offline mode
             }),
             IndentParagraph,
             LoreNode, // Add LoreNode extension
             Placeholder.configure({
                 placeholder: '開始你的創作...',
             }),
-            // Collaboration Extensions
-            Collaboration.configure({
-                document: ydoc,
-            }),
+            // Collaboration Extensions (Offline mode for now)
+            // Collaboration.configure({
+            //    document: ydoc,
+            // }),
             //provider ? CollaborationCursor.configure({
             //    provider: provider,
             //    user: user,
