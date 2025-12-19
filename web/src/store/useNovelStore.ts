@@ -92,8 +92,9 @@ export const useNovelStore = create<NovelState>((set, get) => ({
                 novels: state.novels.filter(n => n.id !== id),
                 selectedNovelId: state.selectedNovelId === id ? null : state.selectedNovelId
             }))
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error deleting novel:', error)
+            alert('Failed to delete: ' + error.message)
         }
     }
 }))
