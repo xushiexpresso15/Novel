@@ -59,15 +59,15 @@ export function Editor() {
         setProvider(null)
 
         // 2. Setup Local Persistence (IndexedDB) for Offline Support
-        const persistence = new IndexeddbPersistence(
-            `novel-chapter-${activeChapterId}`,
-            ydoc
-        )
+        // const persistence = new IndexeddbPersistence(
+        //    `novel-chapter-${activeChapterId}`,
+        //    ydoc
+        // )
 
         // Cleanup on verify/unmount
         return () => {
             // newProvider.destroy()
-            persistence.destroy()
+            // persistence.destroy()
         }
     }, [activeChapterId, ydoc])
 
