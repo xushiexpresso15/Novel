@@ -119,7 +119,7 @@ export function Editor() {
         },
         onCreate({ editor }) {
             // Sync initial user info
-            editor.commands.updateUser(user)
+            // editor.commands.updateUser(user)
         }
     }, [provider]) // Re-create editor when provider changes
 
