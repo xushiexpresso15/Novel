@@ -102,10 +102,10 @@ export function Editor() {
             Collaboration.configure({
                 document: ydoc,
             }),
-            provider ? CollaborationCursor.configure({
-                provider: provider,
-                user: user,
-            }) : undefined,
+            //provider ? CollaborationCursor.configure({
+            //    provider: provider,
+            //    user: user,
+            //}) : undefined,
         ].filter(e => e !== undefined),
         editorProps: {
             attributes: {
