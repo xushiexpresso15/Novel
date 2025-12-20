@@ -10,7 +10,7 @@ import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 // Remove ScrollArea usage, use native overflow
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
@@ -87,6 +87,11 @@ function AddOrEditLoreDialog({
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{editingItem ? '編輯資料' : '新增資料'}</DialogTitle>
+                    <div className="sr-only">
+                        <DialogDescription>
+                            在此{editingItem ? '編輯' : '新增'}您的設定資料，包含名稱、類型與詳細描述。
+                        </DialogDescription>
+                    </div>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">

@@ -57,8 +57,19 @@ function ProfileContent() {
             <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20">
                 <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
                     <Link href="/" className="font-bold text-xl text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                        <span className="bg-indigo-600 text-white p-1 rounded">W</span>
-                        WritePad
+                        {/* Light Mode Logo */}
+                        <img
+                            src="/Novel/logo-light.png"
+                            alt="WritePad"
+                            className="h-8 w-auto dark:hidden"
+                        />
+                        {/* Dark Mode Logo */}
+                        <img
+                            src="/Novel/logo-dark.png"
+                            alt="WritePad"
+                            className="h-8 w-auto hidden dark:block"
+                        />
+                        <span className="ml-2 border-l border-neutral-300 dark:border-neutral-700 pl-3">WritePad</span>
                     </Link>
                     <UserProfile />
                 </div>
@@ -144,7 +155,7 @@ function ProfileContent() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {publicNovels.map((novel, index) => (
-                                <Link key={novel.id} href={`/novel?id=${novel.id}`}>
+                                <Link key={novel.id} href={`/read?novelId=${novel.id}`}>
                                     <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
 
                                         {/* Cover Image */}

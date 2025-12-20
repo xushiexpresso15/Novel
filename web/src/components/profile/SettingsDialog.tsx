@@ -1,6 +1,6 @@
 'use client'
 
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useAuthStore } from "@/store/useAuthStore"
 import { motion, AnimatePresence } from "framer-motion"
 import { User, Settings, Palette, ShieldAlert, LogOut, Laptop, Moon, Sun } from "lucide-react"
@@ -75,6 +75,10 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-3xl h-[600px] p-0 overflow-hidden bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-2xl rounded-3xl flex gap-0 outline-none">
+                <div className="sr-only">
+                    <DialogTitle>設定詳細</DialogTitle>
+                    <DialogDescription>修改您的個人資料、外觀設定和管理帳號。</DialogDescription>
+                </div>
                 {/* Sidebar */}
                 <div className="w-64 bg-zinc-50/50 dark:bg-black/20 border-r border-black/5 dark:border-white/5 p-6 flex flex-col justify-between">
                     <div>

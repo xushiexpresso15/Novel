@@ -27,7 +27,18 @@ export function NovelList() {
             {/* Top Bar (Minimal) */}
             <div className="fixed top-0 left-0 right-0 z-40 p-6 flex justify-between items-center pointer-events-none">
                 <Link href="/" className="pointer-events-auto block">
-                    <img src="/Novel/logo.png" alt="WritePad" className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity" />
+                    {/* Light Mode Logo (Dark Text) */}
+                    <img
+                        src="/Novel/logo-light.png"
+                        alt="WritePad"
+                        className="h-10 w-auto dark:hidden opacity-90 hover:opacity-100 transition-opacity"
+                    />
+                    {/* Dark Mode Logo (Light Text) */}
+                    <img
+                        src="/Novel/logo-dark.png"
+                        alt="WritePad"
+                        className="h-10 w-auto hidden dark:block opacity-90 hover:opacity-100 transition-opacity"
+                    />
                 </Link>
                 <div className="pointer-events-auto">
                     <UserProfile />

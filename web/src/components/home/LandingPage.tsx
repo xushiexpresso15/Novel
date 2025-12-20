@@ -40,9 +40,20 @@ export function LandingPage() {
                 className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none"
             >
                 <div className="pointer-events-auto bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-full px-6 py-3 flex items-center gap-8 shadow-lg shadow-black/5">
-                    <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                        WritePad
-                    </span>
+                    <div className="flex items-center gap-2">
+                        {/* Light Mode Logo */}
+                        <img
+                            src="/Novel/logo-light.png"
+                            alt="WritePad"
+                            className="h-8 w-auto dark:hidden"
+                        />
+                        {/* Dark Mode Logo */}
+                        <img
+                            src="/Novel/logo-dark.png"
+                            alt="WritePad"
+                            className="h-8 w-auto hidden dark:block"
+                        />
+                    </div>
                     <div className="flex items-center gap-4">
                         {user ? (
                             <Button
