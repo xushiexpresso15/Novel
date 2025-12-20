@@ -231,8 +231,8 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                     <h3 className="text-2xl font-bold text-red-500">危險區域</h3>
                                     {!isDeleteConfirm ? (
                                         <div className="p-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20">
-                                            <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">刪除帳號</h4>
-                                            <p className="text-sm text-red-600/70 mb-4 leading-relaxed">
+                                            <h4 className="font-semibold text-red-700 dark:text-red-100 mb-2">刪除帳號</h4>
+                                            <p className="text-sm text-red-600 dark:text-red-200/90 mb-4 leading-relaxed">
                                                 一旦刪除帳號，將無法恢復。請務必確認。
                                                 您的所有小說將永久刪除。
                                             </p>
@@ -245,7 +245,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                         </div>
                                     ) : (
                                         <div className="p-6 rounded-2xl border border-red-500 bg-red-100 dark:bg-red-900/40 animate-in fade-in zoom-in-95 duration-200">
-                                            <h4 className="font-bold text-red-800 dark:text-red-200 mb-4 text-lg">您確定嗎？</h4>
+                                            <h4 className="font-bold text-red-800 dark:text-red-100 mb-4 text-lg">您確定嗎？</h4>
                                             <p className="text-sm text-red-800/80 dark:text-red-200/80 mb-6">
                                                 此操作無法復原。這將永久刪除您的帳號
                                                 並從我們的伺服器中刪除您的所有資料。

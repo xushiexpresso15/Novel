@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, Suspense, useState } from 'react'
+import React, { useEffect, Suspense, useState, useRef } from 'react'
 import { usePublicStore } from '@/store/usePublicStore'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { BookOpen, User, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react'
@@ -15,6 +15,8 @@ function ProfileContent() {
     const userId = searchParams.get('id')
     const { currentProfile, publicNovels, fetchProfile, fetchPublicNovels, isLoading } = usePublicStore()
     const [isBioExpanded, setIsBioExpanded] = useState(false)
+    const [isOverflowing, setIsOverflowing] = useState(false)
+    const bioRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (userId) {
@@ -22,6 +24,14 @@ function ProfileContent() {
             fetchPublicNovels(userId)
         }
     }, [userId, fetchProfile, fetchPublicNovels])
+
+    useEffect(() => {
+        if (bioRef.current) {
+            // Check if scrollHeight is greater than clientHeight to detect truncation
+            const { scrollHeight, clientHeight } = bioRef.current
+            setIsOverflowing(scrollHeight > clientHeight)
+        }
+    }, [currentProfile?.bio, isBioExpanded])
 
     const getGradient = (index: number) => {
         const gradients = [
@@ -72,12 +82,13 @@ function ProfileContent() {
 
                             <div className="relative">
                                 <div
+                                    ref={bioRef}
                                     className={`text-neutral-500 dark:text-neutral-400 max-w-xl text-base leading-relaxed whitespace-pre-wrap ${!isBioExpanded ? 'line-clamp-3' : ''
                                         }`}
                                 >
                                     {currentProfile?.bio || '這個使用者很懶，還沒有寫下自我介紹...'}
                                 </div>
-                                {currentProfile?.bio && (
+                                {(isOverflowing || isBioExpanded) && (
                                     <button
                                         onClick={() => setIsBioExpanded(!isBioExpanded)}
                                         className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 hover:underline flex items-center gap-1 md:mx-0 mx-auto"
