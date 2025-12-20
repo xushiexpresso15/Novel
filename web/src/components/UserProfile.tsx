@@ -1,29 +1,24 @@
 'use client'
 
 import { useAuthStore } from '@/store/useAuthStore'
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { LogOut, User as UserIcon, Loader2 } from 'lucide-react'
+import { Loader2, Settings, LogOut, User } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { SettingsDialog } from '@/components/profile/SettingsDialog'
 
 export function UserProfile() {
-    const { user, checkUser, signInWithGoogle, signOut, isLoading } = useAuthStore()
+    const { user, signInWithGoogle, signOut, isLoading } = useAuthStore()
+    const [isOpen, setIsOpen] = useState(false)
+    const [showSettings, setShowSettings] = useState(false)
 
     // Auth state is managed globally by page.tsx
 
-
     if (isLoading) {
         return (
-            <Button variant="ghost" size="icon" disabled>
-                <Loader2 className="h-4 w-4 animate-spin" />
+            <Button variant="ghost" size="icon" disabled className="rounded-full">
+                <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
             </Button>
         )
     }
@@ -31,62 +26,91 @@ export function UserProfile() {
     if (!user) {
         return (
             <Button
-                variant="outline"
                 onClick={signInWithGoogle}
-                className="gap-2"
+                className="rounded-full bg-white dark:bg-black text-black dark:text-white border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 px-6 shadow-sm"
             >
-                <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                        fill="#4285F4"
-                    />
-                    <path
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                        fill="#34A853"
-                    />
-                    <path
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                        fill="#FBBC05"
-                    />
-                    <path
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                        fill="#EA4335"
-                    />
-                </svg>
-                登入
+                Login
             </Button>
         )
     }
 
-    // Get avatar and name from Google metadata
     const avatarUrl = user.user_metadata?.avatar_url
     const fullName = user.user_metadata?.full_name || user.email
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10 border border-border">
-                        <AvatarImage src={avatarUrl} alt={fullName} />
-                        <AvatarFallback>{fullName?.slice(0, 2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{fullName}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                            {user.email}
-                        </p>
-                    </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="text-red-600 focus:text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>登出</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="relative">
+            {/* Avatar Trigger */}
+            <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen(!isOpen)}
+                className="relative h-10 w-10 rounded-full ring-2 ring-white/50 dark:ring-black/50 shadow-lg overflow-hidden"
+            >
+                <Avatar className="h-full w-full">
+                    <AvatarImage src={avatarUrl} alt={fullName} />
+                    <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-400 text-white font-bold">
+                        {fullName?.slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                </Avatar>
+            </motion.button>
+
+            {/* Custom Glass Dropdown */}
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        {/* Backdrop to close */}
+                        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute right-0 top-14 z-50 w-72 rounded-3xl bg-white/70 dark:bg-zinc-900/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-2xl p-4 flex flex-col gap-2 origin-top-right"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center gap-3 p-2 bg-white/50 dark:bg-black/20 rounded-2xl mb-2 border border-black/5 dark:border-white/5">
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                                    {fullName?.slice(0, 1)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-sm truncate text-slate-800 dark:text-slate-100">{fullName}</p>
+                                    <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                                </div>
+                            </div>
+
+                            {/* Menu Items */}
+                            <MenuButton icon={Settings} label="Account Settings" onClick={() => { setIsOpen(false); setShowSettings(true); }} />
+                            <MenuButton icon={User} label="My Profile" onClick={() => { setIsOpen(false); setShowSettings(true); }} />
+
+                            <div className="h-px bg-black/5 dark:bg-white/10 my-1" />
+
+                            <MenuButton
+                                icon={LogOut}
+                                label="Log Out"
+                                onClick={() => { setIsOpen(false); signOut(); }}
+                                variant="danger"
+                            />
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
+        </div>
+    )
+}
+
+function MenuButton({ icon: Icon, label, onClick, variant = 'default' }: { icon: any, label: string, onClick: () => void, variant?: 'default' | 'danger' }) {
+    return (
+        <button
+            onClick={onClick}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm font-medium ${variant === 'danger'
+                    ? 'hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500'
+                    : 'hover:bg-white/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white'
+                }`}
+        >
+            <Icon className={`w-4 h-4 ${variant === 'danger' ? 'text-red-400' : 'text-slate-400'}`} />
+            {label}
+        </button>
     )
 }
