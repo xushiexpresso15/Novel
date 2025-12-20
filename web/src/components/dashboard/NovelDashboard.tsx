@@ -224,10 +224,12 @@ export function NovelDashboard() {
                         </div>
 
                         <div className="flex gap-3">
-                            <Button variant="outline" className="border-neutral-300 rounded-full px-6" onClick={() => setSettingsOpen(true)}>
-                                <Settings className="w-4 h-4 mr-2" />
-                                設定
-                            </Button>
+                                    <Link href={`/novel?id=${activeNovel.id}`} target="_blank">
+                                        <Button variant="outline" className="border-neutral-300 rounded-full px-6" >
+                                            <Eye className="w-4 h-4 mr-2" />
+                                            預覽
+                                        </Button>
+                                    </Link>
                             <Button onClick={handleAddChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none rounded-full px-6">
                                 <Plus className="w-4 h-4 mr-2" />
                                 新章節
