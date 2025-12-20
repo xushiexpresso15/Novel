@@ -58,7 +58,7 @@ function ProfileContent() {
         <div className="min-h-screen bg-[#FDFBF7] dark:bg-neutral-950">
             {/* Sticky Header */}
             <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20">
-                <div className="max-w-5xl mx-auto px-6 md:px-12 h-16 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-8 md:px-20 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <WritePadLogo className="h-8 w-8" classNameText="text-xl" />
                     </Link>
@@ -66,7 +66,7 @@ function ProfileContent() {
                 </div>
             </header>
 
-            <div className="max-w-5xl mx-auto px-6 md:px-12 py-12">
+            <div className="max-w-6xl mx-auto px-8 md:px-20 py-12">
                 {/* Header Profile Section */}
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                     <Avatar className="w-32 h-32 border-4 border-white shadow-lg shrink-0">
@@ -140,7 +140,7 @@ function ProfileContent() {
             <div className="h-px w-full bg-neutral-200 dark:bg-neutral-800 mb-12" />
 
             {/* Novels Grid */}
-            <div>
+            <div className="max-w-6xl mx-auto px-8 md:px-20 pb-20">
                 <h2 className="text-xl font-bold mb-6 text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
                     <User className="w-5 h-5" />
                     已發布作品
@@ -151,7 +151,7 @@ function ProfileContent() {
                         目前沒有公開的作品
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {publicNovels.map((novel, index) => (
                             <Link key={novel.id} href={`/read?novelId=${novel.id}`} className="block h-full group">
                                 <div className="bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-500/50 transition-all duration-300 flex flex-col">
