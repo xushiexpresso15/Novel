@@ -1,18 +1,16 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { usePublicStore } from '@/store/usePublicStore'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BookOpen, User, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { useParams } from 'next/navigation' // Add import
+import { useSearchParams } from 'next/navigation'
 
-export default function ProfilePage() { // Remove props
-    const params = useParams()
-    const userId = params?.userId as string
+function ProfileContent() {
+    const searchParams = useSearchParams()
+    const userId = searchParams.get('id')
     const { currentProfile, publicNovels, fetchProfile, fetchPublicNovels, isLoading } = usePublicStore()
 
     useEffect(() => {
@@ -28,16 +26,11 @@ export default function ProfilePage() { // Remove props
         </div>
     }
 
-    if (!currentProfile && !isLoading) {
-        return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] dark:bg-neutral-950">
-            User not found.
-        </div>
-    }
+    if (!userId) return <div>Invalid User ID</div>
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] dark:bg-neutral-950">
             <div className="max-w-5xl mx-auto px-4 py-12">
-
                 {/* Header Profile Section */}
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                     <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
@@ -86,7 +79,7 @@ export default function ProfilePage() { // Remove props
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {publicNovels.map(novel => (
-                                <Link key={novel.id} href={`/novel/${novel.id}`}>
+                                <Link key={novel.id} href={`/novel?id=${novel.id}`}>
                                     <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 h-full hover:shadow-md hover:border-indigo-500/50 transition-all">
                                         <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
                                             {novel.title}
@@ -95,8 +88,7 @@ export default function ProfilePage() { // Remove props
                                             {novel.genre || '未分類'}
                                         </div>
                                         <div className="text-sm text-neutral-500 line-clamp-3 mb-4 h-[4.5em]">
-                                            {/* Synopsis could go here if we added it to schema, for now just placeholder or nothing */}
-                                            點擊閱讀更多...
+                                            {novel.description || '點擊閱讀更多...'}
                                         </div>
                                         <div className="text-xs text-neutral-400 flex justify-between items-center mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800">
                                             <span>{format(new Date(novel.created_at), 'yyyy-MM-dd')}</span>
@@ -112,5 +104,13 @@ export default function ProfilePage() { // Remove props
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function ProfilePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ProfileContent />
+        </Suspense>
     )
 }

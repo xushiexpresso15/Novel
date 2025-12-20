@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  // output: 'export', // Disabled for dynamic routing support
-  // basePath: '/Novel',
-  // images: {
-  //   unoptimized: true,
-  // },
+  output: 'export',
+  // basePath: '/Novel', // Keep commented unless user explicitly asks, or if we know repo name.
+  images: {
+    unoptimized: true,
+  },
   // Keeping webpack config for Yjs deduplication match
   webpack: (config) => {
     config.resolve.alias = {
