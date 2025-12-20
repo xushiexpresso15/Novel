@@ -59,12 +59,15 @@ function ReaderContent() {
                 if (novelError) throw novelError
                 setNovel(novelData)
 
-                // 2. Fetch All Chapters (Metadata only) - Only Published
+                const now = new Date().toISOString()
+
+                // 2. Fetch All Chapters (Metadata only) - Only Published & Released
                 const { data: chaptersData, error: chaptersError } = await supabase
                     .from('chapters')
-                    .select('id, title, order, created_at')
+                    .select('id, title, order, created_at, published_at')
                     .eq('novel_id', novelId)
-                    .eq('is_published', true) // Filter for public
+                    .eq('is_published', true)
+                    .lte('published_at', now) // Filter for time
                     .order('order', { ascending: true })
 
                 if (chaptersError) throw chaptersError
@@ -76,7 +79,8 @@ function ReaderContent() {
                         .from('chapters')
                         .select('*')
                         .eq('id', chapterId)
-                        .eq('is_published', true) // Strict check for content too
+                        .eq('is_published', true)
+                        .lte('published_at', now) // Filter for time
                         .single()
 
                     if (contentError) {

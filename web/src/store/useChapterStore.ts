@@ -9,6 +9,7 @@ export interface Chapter {
     order: number
     content?: string
     is_published?: boolean
+    published_at?: string
 }
 
 interface ChapterStore {
@@ -21,6 +22,8 @@ interface ChapterStore {
     setActiveChapter: (id: string | null) => void
     reorderChapters: (activeId: string, overId: string) => Promise<void>
     updateChapter: (id: string, data: Partial<Chapter>) => Promise<void>
+    publishChapter: (id: string) => Promise<void>
+    scheduleChapter: (id: string, date: Date) => Promise<void>
     deleteChapter: (id: string) => Promise<void>
     wordCount: number
     setWordCount: (count: number) => void
@@ -126,6 +129,52 @@ export const useChapterStore = create<ChapterStore>((set, get) => ({
 
         if (error) {
             console.error('Error updating chapter:', error)
+        }
+    },
+
+    publishChapter: async (id) => {
+        const now = new Date().toISOString()
+        const data = { is_published: true, published_at: now }
+
+        // Optimistic
+        set((state) => ({
+            chapters: state.chapters.map((c) => (c.id === id ? { ...c, ...data } : c)),
+        }))
+
+        const { error } = await supabase
+            .from('chapters')
+            .update(data)
+            .eq('id', id)
+
+        if (error) {
+            console.error('Error publishing chapter:', error)
+            toast.error('發布失敗')
+        } else {
+            toast.success('章節已發布')
+        }
+    },
+
+    scheduleChapter: async (id, date) => {
+        const scheduledTime = date.toISOString()
+        const data = { is_published: true, published_at: scheduledTime }
+
+        // Optimistic
+        set((state) => ({
+            chapters: state.chapters.map((c) => (c.id === id ? { ...c, ...data } : c)),
+        }))
+
+        const { error } = await supabase
+            .from('chapters')
+            .update(data)
+            .eq('id', id)
+
+        if (error) {
+            console.error('Error scheduling chapter:', error)
+            toast.error('預約失敗')
+        } else {
+            toast.success('預約成功', {
+                description: `將於 ${date.toLocaleString()} 自動公開`
+            })
         }
     },
 

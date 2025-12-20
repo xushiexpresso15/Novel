@@ -1,14 +1,17 @@
-'use client'
-
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Save } from "lucide-react"
+import { ChevronLeft, Save, Upload, Calendar } from "lucide-react"
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { toast } from "sonner"
+import { useState } from "react"
+import { ScheduleDialog } from "./ScheduleDialog"
 
 export function Sidebar() {
-    const { setActiveChapter } = useChapterStore()
+    const { activeChapterId, publishChapter, scheduleChapter, setActiveChapter } = useChapterStore()
     const { novels, selectedNovelId } = useNovelStore()
+
+    const [scheduleOpen, setScheduleOpen] = useState(false)
+    const [isPublishing, setIsPublishing] = useState(false)
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)
     const novelTitle = activeNovel?.title || "未命名小說"
@@ -46,21 +49,62 @@ export function Sidebar() {
             <div className="p-4 space-y-3 relative z-10 font-[family-name:var(--font-geist-sans)]">
                 <Button
                     onClick={() => {
-                        // Autosave is handled by the editor, this is just visual feedback or triggering a final save if we had a manual method
                         toast.success('儲存成功', {
                             description: `章節已儲存為草稿`,
                             duration: 2000
                         })
-                        // Optional: Go back to dashboard? Or stay? 
-                        // User might want to keep writing. If they want to leave, they use the back chevron.
-                        // Let's NOT clear active chapter here, so they can keep writing.
                     }}
                     className="w-full bg-[#EAC435] hover:bg-[#d6b22f] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
                 >
                     <Save className="w-5 h-5 mb-1" />
                     <span className="text-xs font-bold">儲存為草稿</span>
                 </Button>
+
+                <Button
+                    onClick={async () => {
+                        if (activeChapterId) {
+                            setIsPublishing(true)
+                            await publishChapter(activeChapterId)
+                            setIsPublishing(false)
+                        } else {
+                            toast.error("請先選擇章節")
+                        }
+                    }}
+                    disabled={isPublishing}
+                    className="w-full bg-[#5DADE2] hover:bg-[#4a9bc8] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                >
+                    <Upload className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold">{isPublishing ? '發布中...' : '立即發布'}</span>
+                </Button>
+
+                <Button
+                    onClick={() => {
+                        if (activeChapterId) {
+                            setScheduleOpen(true)
+                        } else {
+                            toast.error("請先選擇章節")
+                        }
+                    }}
+                    className="w-full bg-[#808B96] hover:bg-[#6c7680] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                >
+                    <Calendar className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold">預約發文</span>
+                </Button>
             </div>
+
+            <ScheduleDialog
+                open={scheduleOpen}
+                onOpenChange={setScheduleOpen}
+                onConfirm={async (date) => {
+                    if (activeChapterId) {
+                        setIsPublishing(true)
+                        await scheduleChapter(activeChapterId, date)
+                        setIsPublishing(false)
+                        setScheduleOpen(false)
+                    }
+                }}
+                isLoading={isPublishing}
+            />
         </div>
     )
 }
