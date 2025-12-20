@@ -3,7 +3,7 @@
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { Button } from "@/components/ui/button"
-import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight, Users, Eye, ChevronLeft, Image as ImageIcon, Loader2, Upload } from "lucide-react"
+import { Plus, GripVertical, FileText, Trash2, Settings, Users, Eye, ChevronLeft, Image as ImageIcon, Loader2, Upload } from "lucide-react"
 import Link from 'next/link'
 import {
     DndContext,
@@ -29,7 +29,7 @@ import { CollaborateDialog } from "./CollaborateDialog"
 import { UserProfile } from "@/components/UserProfile"
 import { supabase } from "@/lib/supabase"
 
-function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, title: string, order: number, content?: string }, onClick: () => void, onDelete: () => void }) {
+function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, title: string, order: number, content?: string, is_published?: boolean }, onClick: () => void, onDelete: () => void }) {
     const {
         attributes,
         listeners,
@@ -111,14 +111,25 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
                         刪除
                     </Button>
 
-                    <Button
-                        size="sm"
-                        className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-indigo-600 dark:hover:bg-indigo-300 transition-colors rounded-full px-4"
-                        onClick={onClick}
-                    >
-                        編輯
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
+                    {/* Status Badge instead of Edit Button */}
+                    <div className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors",
+                        chapter.is_published
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            : "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+                    )}>
+                        {chapter.is_published ? (
+                            <>
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>已公開</span>
+                            </>
+                        ) : (
+                            <>
+                                <GripVertical className="w-3.5 h-3.5" />
+                                <span>草稿</span>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

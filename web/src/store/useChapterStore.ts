@@ -8,6 +8,7 @@ export interface Chapter {
     title: string
     order: number
     content?: string
+    is_published?: boolean
 }
 
 interface ChapterStore {

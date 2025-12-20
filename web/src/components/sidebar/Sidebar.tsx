@@ -1,24 +1,17 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Save, Upload, Calendar } from "lucide-react"
+import { ChevronLeft, Save } from "lucide-react"
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { toast } from "sonner"
 
 export function Sidebar() {
-    const { chapters, setActiveChapter } = useChapterStore()
+    const { setActiveChapter } = useChapterStore()
     const { novels, selectedNovelId } = useNovelStore()
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)
     const novelTitle = activeNovel?.title || "未命名小說"
-
-    const handleAction = (action: string) => {
-        toast.success(`${action} 成功`, {
-            description: "功能已模擬執行 (功能開發中)",
-            duration: 2000
-        })
-    }
 
     return (
         <div className="w-64 h-screen sticky top-0 flex flex-col border-r border-neutral-200 dark:border-neutral-800 bg-[#FDFBF7] dark:bg-neutral-900 overflow-hidden">
@@ -66,22 +59,6 @@ export function Sidebar() {
                 >
                     <Save className="w-5 h-5 mb-1" />
                     <span className="text-xs font-bold">儲存為草稿</span>
-                </Button>
-
-                <Button
-                    onClick={() => handleAction('發布')}
-                    className="w-full bg-[#5DADE2] hover:bg-[#4a9bc8] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
-                >
-                    <Upload className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold">發布</span>
-                </Button>
-
-                <Button
-                    onClick={() => handleAction('預約發文')}
-                    className="w-full bg-[#808B96] hover:bg-[#6c7680] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
-                >
-                    <Calendar className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold">預約發文</span>
                 </Button>
             </div>
         </div>

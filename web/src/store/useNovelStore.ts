@@ -38,8 +38,6 @@ export const useNovelStore = create<NovelState>((set) => ({
     fetchNovels: async () => {
         set({ isLoading: true, error: null })
         try {
-            console.log('fetchNovels: fetching...')
-
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 set({ novels: [], isLoading: false })
@@ -53,7 +51,6 @@ export const useNovelStore = create<NovelState>((set) => ({
                 .order('created_at', { ascending: false })
 
             if (error) throw error
-            console.log('fetchNovels: success', data.length)
             set({ novels: data || [] })
         } catch (clientError: unknown) {
             console.error('Supabase Client failed:', clientError)

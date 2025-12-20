@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, ChevronLeft, ChevronRight, Home, BookOpen, Calendar, User, AlignLeft, PlayCircle } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen, Calendar, User, AlignLeft, PlayCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { UserProfile } from '@/components/UserProfile'
 import { format } from 'date-fns'
@@ -59,11 +59,12 @@ function ReaderContent() {
                 if (novelError) throw novelError
                 setNovel(novelData)
 
-                // 2. Fetch All Chapters (Metadata only)
+                // 2. Fetch All Chapters (Metadata only) - Only Published
                 const { data: chaptersData, error: chaptersError } = await supabase
                     .from('chapters')
                     .select('id, title, order, created_at')
                     .eq('novel_id', novelId)
+                    .eq('is_published', true) // Filter for public
                     .order('order', { ascending: true })
 
                 if (chaptersError) throw chaptersError
@@ -75,10 +76,16 @@ function ReaderContent() {
                         .from('chapters')
                         .select('*')
                         .eq('id', chapterId)
+                        .eq('is_published', true) // Strict check for content too
                         .single()
 
-                    if (contentError) throw contentError
-                    setChapter(currentContent)
+                    if (contentError) {
+                        // Handle case where chapter exists but is draft (effectively 404 for reader)
+                        setChapter(null)
+                        // Optional: Redirect or show error, for now just show overview
+                    } else {
+                        setChapter(currentContent)
+                    }
 
                     // Determine neighbors
                     if (chaptersData) {
