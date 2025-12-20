@@ -16,15 +16,16 @@ import { cn } from '@/lib/utils'
 import { useChapterStore } from '@/store/useChapterStore'
 import { useNovelStore } from '@/store/useNovelStore'
 import { useRef, useCallback } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ChevronLeft } from 'lucide-react'
 import { EditorToolbar } from './EditorToolbar'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 
 
 
 export function Editor() {
-    const { activeChapterId, setWordCount, chapters, updateChapter } = useChapterStore()
+    const { activeChapterId, setWordCount, chapters, updateChapter, setActiveChapter } = useChapterStore()
     const { selectedNovelId, novels, updateNovel } = useNovelStore()
 
     const activeChapter = chapters.find(c => c.id === activeChapterId)
@@ -122,6 +123,17 @@ export function Editor() {
 
                     {/* Header: Titles */}
                     <div className="px-12 pt-12 pb-4 space-y-4">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 -ml-2"
+                                onClick={() => setActiveChapter(null)}
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Back to Dashboard
+                            </Button>
+                        </div>
                         {/* Novel Title */}
                         <Input
                             className="text-4xl font-bold border-none shadow-none px-0 h-auto focus-visible:ring-0 placeholder:text-neutral-300"

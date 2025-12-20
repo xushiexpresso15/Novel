@@ -3,7 +3,7 @@
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { Button } from "@/components/ui/button"
-import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight, Users, Eye } from "lucide-react"
+import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight, Users, Eye, ChevronLeft } from "lucide-react"
 import {
     DndContext,
     closestCenter,
@@ -113,7 +113,7 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
 
 export function NovelDashboard() {
     const { chapters, reorderChapters, addChapter, setActiveChapter, deleteChapter, fetchChapters } = useChapterStore()
-    const { novels, selectedNovelId } = useNovelStore()
+    const { novels, selectedNovelId, selectNovel } = useNovelStore()
 
     // Fallback if no novel selected (should handle better in real app)
     const activeNovel = novels.find(n => n.id === selectedNovelId) || { id: 'default', title: '未命名小說', created_at: '', user_id: '', genre: '', is_public: false }
@@ -163,8 +163,19 @@ export function NovelDashboard() {
 
                     {/* Top Bar with User & Collab */}
                     <div className="flex justify-between items-center">
-                        <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold tracking-wide uppercase">
-                            Current Project
+                        <div className="flex items-center gap-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 -ml-2"
+                                onClick={() => selectNovel(null)}
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Back to List
+                            </Button>
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold tracking-wide uppercase">
+                                Current Project
+                            </div>
                         </div>
                         <div className="flex items-center gap-4">
                             <Button
