@@ -5,19 +5,12 @@ import { useNovelStore } from '@/store/useNovelStore'
 import { LandingPage } from '@/components/home/LandingPage'
 import { Dashboard } from '@/components/home/Dashboard'
 import { Loader2 } from 'lucide-react'
-import { useEffect } from 'react'
 
 export default function Home() {
-  const { user, isLoading, checkUser, initializeAuthListener } = useAuthStore()
+  const { user, isLoading } = useAuthStore()
   const { viewMode } = useNovelStore()
 
-  useEffect(() => {
-    checkUser()
-    const subscription = initializeAuthListener()
-    return () => {
-      subscription?.unsubscribe()
-    }
-  }, [checkUser, initializeAuthListener])
+
 
   if (isLoading) {
     return (
