@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   output: 'export',
@@ -13,7 +14,7 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
       'yjs': require.resolve('yjs'),
       'y-prosemirror': require.resolve('y-prosemirror'),
-      'y-protocols': require.resolve('y-protocols'),
+      'y-protocols': path.dirname(require.resolve('y-protocols/package.json')),
       // Dedupe ProseMirror packages
       'prosemirror-model': require.resolve('prosemirror-model'),
       'prosemirror-state': require.resolve('prosemirror-state'),
