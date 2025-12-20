@@ -2,6 +2,8 @@
 
 import React, { useEffect, Suspense, useState, useRef } from 'react'
 import { usePublicStore } from '@/store/usePublicStore'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useMailStore } from '@/store/useMailStore'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { BookOpen, User, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react'
 import { format } from 'date-fns'
@@ -126,65 +128,91 @@ function ProfileContent() {
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="h-px w-full bg-neutral-200 dark:bg-neutral-800 mb-12" />
-
-                {/* Novels Grid */}
-                <div>
-                    <h2 className="text-xl font-bold mb-6 text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                        <User className="w-5 h-5" />
-                        已發布作品
-                    </h2>
-
-                    {publicNovels.length === 0 ? (
-                        <div className="text-center py-12 text-neutral-400">
-                            目前沒有公開的作品
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {publicNovels.map((novel, index) => (
-                                <Link key={novel.id} href={`/read?novelId=${novel.id}`}>
-                                    <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
-
-                                        {/* Cover Image */}
-                                        <div className="h-48 w-full relative overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0">
-                                            {novel.cover_url ? (
-                                                <img
-                                                    src={novel.cover_url}
-                                                    alt={novel.title}
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                />
-                                            ) : (
-                                                <div className={`w-full h-full bg-gradient-to-br ${getGradient(index)} opacity-80`} />
-                                            )}
-                                        </div>
-
-                                        <div className="p-6 flex flex-col flex-1">
-                                            <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1 text-slate-900 dark:text-white">
-                                                {novel.title}
-                                            </h3>
-                                            <div className="text-xs text-neutral-400 mb-4 bg-neutral-100 dark:bg-neutral-800 inline-block px-2 py-1 rounded self-start">
-                                                {novel.genre || '未分類'}
-                                            </div>
-                                            <div className="text-sm text-neutral-500 line-clamp-3 mb-4 h-[4.5em] flex-1">
-                                                {novel.description || '點擊閱讀更多...'}
-                                            </div>
-                                            <div className="text-xs text-neutral-400 flex justify-between items-center mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800 w-full">
-                                                <span>{format(new Date(novel.created_at), 'yyyy-MM-dd')}</span>
-                                                <span className="text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                                                    閱讀 <span className="text-lg leading-3">→</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
+                    {/* Send Message Action (Only if looking at others) */}
+                    {/* Note: In real app compare userId with authId. For now, show always or check store. */}
+                    <div className="pt-4">
+                        <SendMessageButton targetUserId={userId} />
+                    </div>
                 </div>
             </div>
+
+            <div className="h-px w-full bg-neutral-200 dark:bg-neutral-800 mb-12" />
+
+            {/* Novels Grid */}
+            <div>
+                <h2 className="text-xl font-bold mb-6 text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    已發布作品
+                </h2>
+
+                {publicNovels.length === 0 ? (
+                    <div className="text-center py-12 text-neutral-400">
+                        目前沒有公開的作品
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {publicNovels.map((novel, index) => (
+                            <Link key={novel.id} href={`/read?novelId=${novel.id}`}>
+                                <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
+
+                                    {/* Cover Image */}
+                                    <div className="h-48 w-full relative overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0">
+                                        {novel.cover_url ? (
+                                            <img
+                                                src={novel.cover_url}
+                                                alt={novel.title}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className={`w-full h-full bg-gradient-to-br ${getGradient(index)} opacity-80`} />
+                                        )}
+                                    </div>
+
+                                    <div className="p-6 flex flex-col flex-1">
+                                        <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1 text-slate-900 dark:text-white">
+                                            {novel.title}
+                                        </h3>
+                                        <div className="text-xs text-neutral-400 mb-4 bg-neutral-100 dark:bg-neutral-800 inline-block px-2 py-1 rounded self-start">
+                                            {novel.genre || '未分類'}
+                                        </div>
+                                        <div className="text-sm text-neutral-500 line-clamp-3 mb-4 h-[4.5em] flex-1">
+                                            {novel.description || '點擊閱讀更多...'}
+                                        </div>
+                                        <div className="text-xs text-neutral-400 flex justify-between items-center mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800 w-full">
+                                            <span>{format(new Date(novel.created_at), 'yyyy-MM-dd')}</span>
+                                            <span className="text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                                閱讀 <span className="text-lg leading-3">→</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
+    )
+}
+
+function SendMessageButton({ targetUserId }: { targetUserId: string }) {
+    const { setIsOpen, setActiveConversation } = useMailStore()
+    const { user: authUser } = useAuthStore()
+
+    if (!authUser || authUser.id === targetUserId) return null
+
+    return (
+        <Button
+            onClick={() => {
+                setActiveConversation(targetUserId)
+                setIsOpen(true)
+            }}
+            size="sm"
+            className="rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+        >
+            <span className="mr-2">✉️</span> 傳送訊息
+        </Button>
     )
 }
 

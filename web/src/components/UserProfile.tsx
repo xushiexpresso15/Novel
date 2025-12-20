@@ -8,6 +8,8 @@ import { Loader2, Settings, LogOut, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SettingsDialog } from '@/components/profile/SettingsDialog'
 import { useRouter } from 'next/navigation'
+import { MailButton } from '@/components/mail/MailButton'
+import { InboxDialog } from '@/components/mail/InboxDialog'
 
 export function UserProfile() {
     const { user, signInWithGoogle, signOut, isLoading } = useAuthStore()
@@ -40,7 +42,10 @@ export function UserProfile() {
     const fullName = user.user_metadata?.full_name || user.email
 
     return (
-        <div className="relative">
+        <div className="relative flex items-center gap-2">
+            <MailButton />
+            <InboxDialog />
+
             {/* Avatar Trigger */}
             <motion.button
                 whileHover={{ scale: 1.05 }}
