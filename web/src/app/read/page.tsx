@@ -33,7 +33,7 @@ function ReaderContent() {
 
     useEffect(() => {
         const fetchChapterAndNovel = async () => {
-            if (!novelId || !chapterId) return
+            if (!novelId) return
 
             setIsLoading(true)
             try {
