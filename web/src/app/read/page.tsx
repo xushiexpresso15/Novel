@@ -132,8 +132,8 @@ function ReaderContent() {
                 onContextMenu={(e) => e.preventDefault()}
             >
                 {/* Minimal Header */}
-                <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-10 shadow-sm">
-                    <div className="flex items-center gap-2">
+                <div className="relative flex items-center justify-between px-4 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-10 shadow-sm">
+                    <div className="flex items-center gap-2 relative z-10">
                         <Link href={`/read?novelId=${novelId}`}>
                             <Button variant="ghost" size="sm" className="text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100">
                                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -147,11 +147,11 @@ function ReaderContent() {
                     </div>
 
                     {/* Novel Title in Header */}
-                    <div className="text-base font-bold text-neutral-900 dark:text-neutral-100 truncate max-w-[50vw] text-center">
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-base font-bold text-neutral-900 dark:text-neutral-100 truncate max-w-[40vw] text-center hidden md:block">
                         {novel.title} <span className="text-neutral-400 mx-1">/</span> {chapter.title}
                     </div>
 
-                    <div className="w-fit flex justify-end">
+                    <div className="w-fit flex justify-end relative z-10">
                         <UserProfile />
                     </div>
                 </div>
