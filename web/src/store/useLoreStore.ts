@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { supabase } from '@/lib/supabase'
 
 export type LoreType = 'character' | 'location' | 'item'
 
@@ -7,51 +8,114 @@ export interface LoreItem {
     title: string
     type: LoreType
     description: string
-    imageUrl?: string // Optional for now
+    imageUrl?: string
+    user_id?: string
+    novel_id?: string
 }
 
 interface LoreStore {
     items: LoreItem[]
-    addItem: (item: Omit<LoreItem, 'id'>) => void
-    removeItem: (id: string) => void
-    updateItem: (id: string, data: Partial<LoreItem>) => void
+    isLoading: boolean
+    fetchItems: (novelId: string) => Promise<void>
+    addItem: (item: Omit<LoreItem, 'id'>, novelId: string) => Promise<void>
+    removeItem: (id: string) => Promise<void>
+    updateItem: (id: string, data: Partial<LoreItem>) => Promise<void>
 }
 
-export const useLoreStore = create<LoreStore>((set) => ({
-    items: [
-        {
-            id: '1',
-            title: '林若曦',
-            type: 'character',
-            description: '本作女主角，17歲，性格外冷內熱。擁有操縱冰雪的能力。',
-            imageUrl: '/avatars/1.png'
-        },
-        {
-            id: '2',
-            title: '雲隱村',
-            type: 'location',
-            description: '位於深山之中的古老村落，四季如春，被結界保護著。',
-        },
-        {
-            id: '3',
-            title: '破魔之劍',
-            type: 'item',
-            description: '傳說中勇者留下的佩劍，對魔族有極大的殺傷力。',
+export const useLoreStore = create<LoreStore>((set, get) => ({
+    items: [],
+    isLoading: false,
+
+    fetchItems: async (novelId: string) => {
+        set({ isLoading: true })
+        try {
+            const { data, error } = await supabase
+                .from('lore_items')
+                .select('*')
+                .eq('novel_id', novelId)
+                .order('created_at', { ascending: false })
+
+            if (error) throw error
+
+            set({ items: data as LoreItem[] || [] })
+        } catch (error) {
+            console.error('Error fetching lore items:', error)
+        } finally {
+            set({ isLoading: false })
         }
-    ],
-    addItem: (item) =>
-        set((state) => ({
-            items: [
-                ...state.items,
-                { ...item, id: Math.random().toString(36).substr(2, 9) }
-            ],
-        })),
-    removeItem: (id) =>
-        set((state) => ({
-            items: state.items.filter((item) => item.id !== id),
-        })),
-    updateItem: (id, data) =>
-        set((state) => ({
-            items: state.items.map((item) => (item.id === id ? { ...item, ...data } : item)),
-        })),
+    },
+
+    addItem: async (item, novelId: string) => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const newItem = {
+                ...item,
+                user_id: user.id,
+                novel_id: novelId
+            }
+
+            const { data, error } = await supabase
+                .from('lore_items')
+                .insert([newItem])
+                .select()
+                .single()
+
+            if (error) throw error
+
+            set((state) => ({
+                items: [data as LoreItem, ...state.items]
+            }))
+        } catch (error) {
+            console.error('Error adding lore item:', error)
+        }
+    },
+
+    removeItem: async (id) => {
+        try {
+            // Optimistic update
+            const previousItems = get().items
+            set((state) => ({
+                items: state.items.filter((item) => item.id !== id),
+            }))
+
+            const { error } = await supabase
+                .from('lore_items')
+                .delete()
+                .eq('id', id)
+
+            if (error) {
+                // Revert
+                set({ items: previousItems })
+                throw error
+            }
+        } catch (error) {
+            console.error('Error deleting lore item:', error)
+        }
+    },
+
+    updateItem: async (id, data) => {
+        try {
+            // Optimistic update
+            const previousItems = get().items
+            set((state) => ({
+                items: state.items.map((item) => (item.id === id ? { ...item, ...data } : item)),
+            }))
+
+            const { error } = await supabase
+                .from('lore_items')
+                .update(data)
+                .eq('id', id)
+
+            if (error) {
+                // Revert
+                set({ items: previousItems })
+                throw error
+            }
+
+        } catch (error) {
+            console.error('Error updating lore item:', error)
+        }
+    },
 }))

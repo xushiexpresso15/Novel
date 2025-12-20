@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Plus, Trash2, Bot, Send } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -133,10 +133,19 @@ function AddOrEditLoreDialog({
     )
 }
 
+import { useNovelStore } from "@/store/useNovelStore"
+
 export function RightSidebar() {
-    const { items, addItem, removeItem, updateItem } = useLoreStore()
+    const { items, addItem, removeItem, updateItem, fetchItems } = useLoreStore()
+    const { selectedNovelId } = useNovelStore()
     const [searchQuery, setSearchQuery] = useState('')
     const [activeTab, setActiveTab] = useState("character") // 'character' | 'location' | 'item' | 'ai'
+
+    useEffect(() => {
+        if (selectedNovelId) {
+            fetchItems(selectedNovelId)
+        }
+    }, [fetchItems, selectedNovelId])
 
     // Dialog States
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -158,11 +167,12 @@ export function RightSidebar() {
             updateItem(editingItem.id, data)
             toast.success("資料已更新")
         } else {
+            if (!selectedNovelId) return
             addItem({
                 title: data.title!,
                 type: data.type as LoreType,
                 description: data.description!
-            })
+            }, selectedNovelId)
             toast.success("新增成功")
         }
         setEditingItem(null)
