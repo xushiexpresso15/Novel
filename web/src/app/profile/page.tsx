@@ -1,18 +1,20 @@
 'use client'
 
-import React, { useEffect, Suspense } from 'react'
+import React, { useEffect, Suspense, useState } from 'react'
 import { usePublicStore } from '@/store/usePublicStore'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { BookOpen, User, Calendar } from 'lucide-react'
+import { BookOpen, User, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { UserProfile } from '@/components/UserProfile'
+import { Button } from '@/components/ui/button'
 
 function ProfileContent() {
     const searchParams = useSearchParams()
     const userId = searchParams.get('id')
     const { currentProfile, publicNovels, fetchProfile, fetchPublicNovels, isLoading } = usePublicStore()
+    const [isBioExpanded, setIsBioExpanded] = useState(false)
 
     useEffect(() => {
         if (userId) {
@@ -55,24 +57,54 @@ function ProfileContent() {
             <div className="max-w-5xl mx-auto px-4 py-12">
                 {/* Header Profile Section */}
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
-                    <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
+                    <Avatar className="w-32 h-32 border-4 border-white shadow-lg shrink-0">
                         <AvatarImage src={currentProfile?.avatar_url || ''} />
                         <AvatarFallback className="text-4xl bg-indigo-100 text-indigo-600">
                             {(currentProfile?.username || 'U')[0].toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
 
-                    <div className="flex-1 text-center md:text-left space-y-4">
+                    <div className="flex-1 text-center md:text-left space-y-4 w-full">
                         <div>
-                            <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                            <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
                                 {currentProfile?.username || 'Unknown User'}
                             </h1>
-                            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl">
-                                {currentProfile?.bio || '這個使用者很懶，還沒有寫下自我介紹...'}
-                            </p>
+
+                            <div className="relative">
+                                <div
+                                    className={`text-neutral-500 dark:text-neutral-400 max-w-xl text-base leading-relaxed whitespace-pre-wrap ${!isBioExpanded ? 'line-clamp-3' : ''
+                                        }`}
+                                >
+                                    {currentProfile?.bio || '這個使用者很懶，還沒有寫下自我介紹...'}
+                                </div>
+                                {currentProfile?.bio && (
+                                    <button
+                                        onClick={() => setIsBioExpanded(!isBioExpanded)}
+                                        className="text-xs text-indigo-600 dark:text-indigo-400 mt-2 hover:underline flex items-center gap-1 md:mx-0 mx-auto"
+                                    >
+                                        {isBioExpanded ? (
+                                            <>收起 <ChevronUp className="w-3 h-3" /></>
+                                        ) : (
+                                            <>顯示更多... <ChevronDown className="w-3 h-3" /></>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-center md:justify-start gap-6 text-sm text-neutral-500">
+                        {currentProfile?.website && (
+                            <a
+                                href={currentProfile.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                            >
+                                <Globe className="w-4 h-4 shrink-0" />
+                                {currentProfile.website}
+                            </a>
+                        )}
+
+                        <div className="flex items-center justify-center md:justify-start gap-6 text-sm text-neutral-500 pt-2">
                             <div className="flex items-center gap-2">
                                 <BookOpen className="w-4 h-4" />
                                 <span>{publicNovels.length} 作品</span>

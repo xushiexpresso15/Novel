@@ -41,13 +41,12 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
             if (authError) throw authError
 
             // 2. Update Public Profile Table
-            // Note: We sync 'fullName' to 'username' in profiles for public display
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({
                     username: fullName,
                     bio: bio,
-                    // website might not exist in profiles schema yet, keeping it safe with just bio/name
+                    website: website
                 })
                 .eq('id', user?.id)
 
@@ -58,8 +57,6 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
             // Refresh user data to update UI immediately
             await checkUser()
 
-            // Show success feedback (optional, but good UX)
-            // alert('儲存成功！') 
         } catch (error) {
             console.error('Error updating profile:', error)
             alert('更新個人資料失敗')
@@ -154,10 +151,18 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">個人簡介</label>
+                                            <div className="flex justify-between items-center ml-1">
+                                                <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">個人簡介</label>
+                                                <span className={`text-xs ${bio.length > 100 ? 'text-red-500' : 'text-zinc-400'}`}>
+                                                    {bio.length}/100
+                                                </span>
+                                            </div>
                                             <textarea
                                                 value={bio}
-                                                onChange={(e) => setBio(e.target.value)}
+                                                onChange={(e) => {
+                                                    const text = e.target.value
+                                                    if (text.length <= 100) setBio(text)
+                                                }}
                                                 placeholder="稍微介紹一下您自己..."
                                                 rows={3}
                                                 className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 focus:ring-2 ring-indigo-500/20 outline-none transition-all font-medium placeholder:text-zinc-400 resize-none"
