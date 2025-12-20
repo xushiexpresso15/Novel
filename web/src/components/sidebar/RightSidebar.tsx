@@ -2,6 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLoreStore } from "@/store/useLoreStore"
+import { useChapterStore } from "@/store/useChapterStore"
 import { Users, MapPin, Box, Plus, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,18 +39,41 @@ function LoreCard({ item }: { item: any }) {
     )
 }
 
+function StatCard({ label, value }: { label: string, value: string | number }) {
+    return (
+        <div className="bg-[#FAE5D3] dark:bg-neutral-800 rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-[#F1C40F] dark:bg-yellow-600 px-3 py-1.5 text-center">
+                <span className="text-white dark:text-white font-bold text-sm tracking-wide">{label}</span>
+            </div>
+            <div className="p-4 flex items-center justify-center">
+                <span className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">{value}</span>
+            </div>
+        </div>
+    )
+}
+
 export function RightSidebar() {
     const { items } = useLoreStore()
+    const { wordCount } = useChapterStore()
+
+    const readingTime = Math.ceil(wordCount / 300)
 
     return (
-        <div className="w-80 h-screen sticky top-0 flex flex-col border-l border-white/20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl">
+        <div className="w-64 h-screen sticky top-0 flex flex-col border-l border-neutral-200 dark:border-neutral-800 bg-[#FDFBF7] dark:bg-neutral-900 overflow-hidden">
+
+            {/* Statistics Section */}
+            <div className="p-4 space-y-4 border-b border-neutral-200 dark:border-neutral-800">
+                <StatCard label="字數統計" value={wordCount} />
+                <StatCard label="閱讀時間(分鐘)" value={readingTime} />
+            </div>
+
             {/* Search Bar */}
-            <div className="p-4 border-b border-white/10">
+            <div className="p-4 border-b border-neutral-200 dark:border-neutral-800">
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="搜尋設定..."
-                        className="pl-9 bg-white/50 dark:bg-black/20 border-transparent focus:bg-white dark:focus:bg-black/50 transition-colors"
+                        className="pl-9 bg-white dark:bg-black/20 border-neutral-200 dark:border-neutral-700 focus:bg-white dark:focus:bg-black/50 transition-colors"
                     />
                 </div>
             </div>
@@ -57,7 +81,7 @@ export function RightSidebar() {
             {/* Tabs */}
             <Tabs defaultValue="character" className="flex-1 flex flex-col">
                 <div className="px-4 pt-2">
-                    <TabsList className="w-full grid grid-cols-3 bg-black/5 dark:bg-white/5">
+                    <TabsList className="w-full grid grid-cols-3 bg-neutral-100 dark:bg-white/5">
                         <TabsTrigger value="character">角色</TabsTrigger>
                         <TabsTrigger value="location">地點</TabsTrigger>
                         <TabsTrigger value="item">物品</TabsTrigger>
@@ -70,7 +94,7 @@ export function RightSidebar() {
             </Tabs>
 
             {/* Add Button */}
-            <div className="p-4 border-t border-white/10">
+            <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
                 <Button variant="outline" className="w-full border-dashed border-slate-300 dark:border-slate-700 text-muted-foreground hover:text-foreground">
                     <Plus className="w-4 h-4 mr-2" />
                     新增資料

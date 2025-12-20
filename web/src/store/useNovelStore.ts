@@ -19,6 +19,7 @@ interface NovelState {
     createNovel: () => Promise<void>
     selectNovel: (id: string | null) => void
     deleteNovel: (id: string) => Promise<void>
+    updateNovel: (id: string, data: Partial<Novel>) => Promise<void>
 }
 
 export const useNovelStore = create<NovelState>((set, get) => ({
@@ -95,6 +96,25 @@ export const useNovelStore = create<NovelState>((set, get) => ({
         } catch (error: any) {
             console.error('Error deleting novel:', error)
             alert('Failed to delete: ' + error.message)
+        }
+    },
+
+    updateNovel: async (id, data) => {
+        try {
+            // Optimistic update
+            set((state) => ({
+                novels: state.novels.map(n => n.id === id ? { ...n, ...data } : n)
+            }))
+
+            const { error } = await supabase
+                .from('novels')
+                .update(data)
+                .eq('id', id)
+
+            if (error) throw error
+        } catch (error: any) {
+            console.error('Error updating novel:', error)
+            // simplified: revert not implemented for MVP
         }
     }
 }))

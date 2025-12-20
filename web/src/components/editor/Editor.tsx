@@ -3,18 +3,22 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-// import Collaboration from '@tiptap/extension-collaboration'
-// import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import Underline from '@tiptap/extension-underline'
+import CharacterCount from '@tiptap/extension-character-count'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import TextAlign from '@tiptap/extension-text-align'
 import { IndentParagraph } from './IndentParagraph'
-import { LoreNode } from './LoreNode' // Import LoreNode
-// import { HocuspocusProvider } from '@hocuspocus/provider'
-// import { IndexeddbPersistence } from 'y-indexeddb'
-// import * as Y from 'yjs'
+import { LoreNode } from './LoreNode'
 import { cn } from '@/lib/utils'
 import { useChapterStore } from '@/store/useChapterStore'
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useNovelStore } from '@/store/useNovelStore'
+import { useEffect, useState, useMemo } from 'react'
 import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner' // Import Toast
+import { toast } from 'sonner'
+import { EditorToolbar } from './EditorToolbar'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 
 // Define a consistent color for this user (random for MVP)
 const getRandomColor = () => {
@@ -23,122 +27,119 @@ const getRandomColor = () => {
 }
 
 export function Editor() {
-    const { activeChapterId } = useChapterStore()
+    const { activeChapterId, setWordCount, chapters, updateChapter } = useChapterStore()
+    const { selectedNovelId, novels, updateNovel } = useNovelStore()
     const [status, setStatus] = useState('connecting')
-    const [provider, setProvider] = useState<any | null>(null)
 
-    // Create YJS document
-    // const ydoc = useMemo(() => new Y.Doc(), [])
+    const activeChapter = chapters.find(c => c.id === activeChapterId)
+    const activeNovel = novels.find(n => n.id === selectedNovelId)
 
-    // User info (Mock for MVP)
+    // Mock user
     const user = useMemo(() => ({
         name: 'Author-' + Math.floor(Math.random() * 100),
         color: getRandomColor(),
     }), [])
 
-    useEffect(() => {
-        if (!activeChapterId) return;
-
-        // 1. Connect to WebSocket Server (Hocuspocus)
-        // In a real app, this URL should be an environment variable.
-        // For GitHub Pages demo, we might not have a backend, so this will fail gracefully
-        // and fall back to IndexedDB (Offline mode).
-        // Actually, for a pure static demo without a backend, let's just use localhost
-        // and let it fail to "Offline" state if deployed.
-        // 1. Connect to WebSocket Server (Hocuspocus)
-        // const newProvider = new HocuspocusProvider({
-        //    url: 'ws://127.0.0.1:1234',
-        //    name: `novel-chapter-${activeChapterId}`,
-        //    document: ydoc,
-        //    onStatus: (event) => {
-        //        setStatus(event.status)
-        //    },
-        // })
-
-        // setProvider(newProvider)
-        setProvider(null)
-
-        // 2. Setup Local Persistence (IndexedDB) for Offline Support
-        // const persistence = new IndexeddbPersistence(
-        //    `novel-chapter-${activeChapterId}`,
-        //    ydoc
-        // )
-
-        // Cleanup on verify/unmount
-        return () => {
-            // newProvider.destroy()
-            // persistence.destroy()
-        }
-    }, [activeChapterId])
-
-    // Effect to handle toasts separately based on status state change to avoid spam
-    useEffect(() => {
-        if (status === 'connected') {
-            toast.success('已連線 (Online)', { description: '多人協作功能已啟用', duration: 3000 })
-        } else if (status === 'disconnected') {
-            toast.warning('離線模式 (Offline)', { description: '變更將儲存於本地，連線後自動同步', duration: 5000 })
-        }
-    }, [status])
-
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
                 paragraph: false,
-                // history: false, // Re-enable history for offline mode
             }),
             IndentParagraph,
-            LoreNode, // Add LoreNode extension
+            LoreNode,
             Placeholder.configure({
                 placeholder: '開始你的創作...',
             }),
-            // Collaboration Extensions (Offline mode for now)
-            // Collaboration.configure({
-            //    document: ydoc,
-            // }),
-            //provider ? CollaborationCursor.configure({
-            //    provider: provider,
-            //    user: user,
-            //}) : undefined,
-        ].filter(e => e !== undefined),
+            Underline,
+            CharacterCount,
+            Image,
+            Link.configure({
+                openOnClick: false,
+            }),
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+        ],
         editorProps: {
             attributes: {
                 class: cn(
-                    'prose prose-slate dark:prose-invert max-w-none focus:outline-none',
-                    'min-h-[calc(100vh-10rem)] p-8 md:p-12',
+                    'prose prose-lg prose-slate dark:prose-invert max-w-none focus:outline-none',
+                    'min-h-[500px] px-8 py-4',
                     'font-serif text-lg leading-relaxed tracking-wide',
-                    'selection:bg-primary/20 selection:text-primary-foreground'
+                    'selection:bg-yellow-200 selection:text-black'
                 ),
             },
         },
         onCreate({ editor }) {
-            // Sync initial user info
-            // editor.commands.updateUser(user)
+            setWordCount(editor.storage.characterCount.words())
+        },
+        onUpdate({ editor }) {
+            setWordCount(editor.storage.characterCount.words())
         }
-    }, [provider]) // Re-create editor when provider changes
+    }, [activeChapterId])
 
-
-    if (!editor || !activeChapterId) {
+    if (!activeChapterId) {
         return (
-            <div className="flex h-[800px] w-full items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center bg-[#FDFBF7] dark:bg-neutral-900">
+                <div className="text-center text-muted-foreground">
+                    <p>請選擇或建立章節</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (!editor) {
+        return (
+            <div className="flex h-full w-full items-center justify-center bg-[#FDFBF7] dark:bg-neutral-900">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
 
     return (
-        <div className="relative w-full max-w-3xl mx-auto my-8">
-            {/* Paper Container */}
-            <div className="bg-white dark:bg-[#1E1E1E] rounded-xl shadow-2xl min-h-[800px] transition-shadow duration-500 relative">
-                {/* Sync Status Badge (Debug purpose for MVP) */}
-                <div className={cn(
-                    "absolute top-4 right-4 text-xs px-2 py-1 rounded-full font-mono transition-colors",
-                    status === 'connected' ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
-                )}>
-                    {status}
-                </div>
+        <div className="flex flex-col h-full bg-[#FDFBF7] dark:bg-[#1a1a1a]">
+            {/* Scrollable Container */}
+            <div className="flex-1 overflow-y-auto scroll-smooth">
+                <div className="max-w-4xl mx-auto min-h-screen bg-white dark:bg-[#1E1E1E] shadow-sm my-8 border border-neutral-200 dark:border-neutral-800 relative flex flex-col">
 
-                <EditorContent editor={editor} />
+                    {/* Header: Titles */}
+                    <div className="px-12 pt-12 pb-4 space-y-4">
+                        {/* Novel Title */}
+                        <Input
+                            className="text-4xl font-bold border-none shadow-none px-0 h-auto focus-visible:ring-0 placeholder:text-neutral-300"
+                            placeholder="致墨色的你"
+                            value={activeNovel?.title || ''}
+                            onChange={(e) => activeNovel && updateNovel(activeNovel.id, { title: e.target.value })}
+                        />
+                        {/* Chapter Title */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground text-lg"># {String(activeChapter?.order ? activeChapter.order + 1 : 1)}</span>
+                            <Input
+                                className="text-xl text-muted-foreground border-none shadow-none px-0 h-auto focus-visible:ring-0 placeholder:text-neutral-300"
+                                placeholder="篇章標題(選填)"
+                                value={activeChapter?.title || ''}
+                                onChange={(e) => activeChapterId && updateChapter(activeChapterId, { title: e.target.value })}
+                            />
+                        </div>
+                    </div>
+
+                    <Separator className="mx-12 my-2 w-auto bg-neutral-200" />
+
+                    {/* Sticky Toolbar Wrapper */}
+                    <div className="sticky top-0 z-40 bg-white dark:bg-[#1E1E1E] px-8 py-2 border-b border-neutral-100 dark:border-neutral-800">
+                        <div className="rounded-lg overflow-hidden border border-amber-200 shadow-sm">
+                            <EditorToolbar editor={editor} />
+                        </div>
+                    </div>
+
+                    {/* Editor Content */}
+                    <div className="flex-1 pb-32">
+                        <EditorContent editor={editor} />
+                    </div>
+                </div>
             </div>
+
+            {/* Status Footer if needed, but sidebar has most info */}
         </div>
     )
 }
