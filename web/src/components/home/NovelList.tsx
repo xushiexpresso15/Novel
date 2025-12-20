@@ -4,11 +4,11 @@ import { useNovelStore } from "@/store/useNovelStore"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { Plus, Book, Trash2, Home, Settings, LogOut } from "lucide-react"
+import { Plus, Trash2, Home, Settings, LogOut } from "lucide-react"
 import { UserProfile } from "@/components/UserProfile"
 import { Button } from "@/components/ui/button"
 import { LiquidBackground } from "@/components/ui/LiquidBackground"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
 
 export function NovelList() {
     const { novels, fetchNovels, createNovel, selectNovel, deleteNovel, setViewMode } = useNovelStore()
@@ -16,7 +16,7 @@ export function NovelList() {
 
     useEffect(() => {
         fetchNovels()
-    }, [])
+    }, [fetchNovels])
 
     return (
         <div className="relative min-h-screen text-slate-800 dark:text-slate-100 font-sans selection:bg-indigo-500/30">
@@ -46,10 +46,8 @@ export function NovelList() {
                 </motion.div>
 
                 {/* Error Banner */}
-                {/* @ts-ignore */}
                 {useNovelStore.getState().error && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl backdrop-blur-md">
-                        {/* @ts-ignore */}
                         Error: {useNovelStore.getState().error}
                     </motion.div>
                 )}
@@ -123,7 +121,7 @@ export function NovelList() {
     )
 }
 
-function TooltipButton({ icon, label, onClick }: { icon: any, label: string, onClick: () => void }) {
+function TooltipButton({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
     return (
         <motion.button
             whileHover={{ scale: 1.1, y: -2 }}

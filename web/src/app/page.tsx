@@ -17,7 +17,7 @@ export default function Home() {
     return () => {
       subscription?.unsubscribe()
     }
-  }, [])
+  }, [checkUser, initializeAuthListener])
 
   if (isLoading) {
     return (

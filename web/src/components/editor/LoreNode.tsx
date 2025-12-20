@@ -1,5 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core'
-import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react'
+import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewProps } from '@tiptap/react'
 
 export const LoreNode = Node.create({
     name: 'loreNode',
@@ -36,7 +36,7 @@ export const LoreNode = Node.create({
     },
 })
 
-function LoreComponent(props: any) {
+function LoreComponent(props: NodeViewProps) {
     const { title, category } = props.node.attrs
 
     return (

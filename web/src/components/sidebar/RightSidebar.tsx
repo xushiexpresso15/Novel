@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from "react"
-import { Search, ChevronLeft, ChevronRight, Plus, Trash2, Bot, Sparkles, Send } from "lucide-react"
+import { Search, Plus, Trash2, Bot, Send } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useLoreStore, LoreItem, LoreType } from "@/store/useLoreStore"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"

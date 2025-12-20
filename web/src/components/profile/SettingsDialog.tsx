@@ -3,7 +3,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { useAuthStore } from "@/store/useAuthStore"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, Settings, Palette, ShieldAlert, LogOut, Check, Laptop, Moon, Sun } from "lucide-react"
+import { User, Settings, Palette, ShieldAlert, LogOut, Laptop, Moon, Sun } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
@@ -221,7 +221,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     )
 }
 
-function ThemeOption({ icon: Icon, label, isActive, onClick }: any) {
+function ThemeOption({ icon: Icon, label, isActive, onClick }: { icon: React.ElementType, label: string, isActive: boolean, onClick: () => void }) {
     return (
         <button
             onClick={onClick}

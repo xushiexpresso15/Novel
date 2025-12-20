@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Feather, Laptop, ExternalLink } from 'lucide-react'
+import { ArrowRight, Sparkles, Feather, Laptop } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useNovelStore } from '@/store/useNovelStore'
 import { Button } from '@/components/ui/button'

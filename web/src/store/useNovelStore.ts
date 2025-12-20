@@ -22,7 +22,7 @@ interface NovelState {
     updateNovel: (id: string, data: Partial<Novel>) => Promise<void>
 }
 
-export const useNovelStore = create<NovelState>((set, get) => ({
+export const useNovelStore = create<NovelState>((set) => ({
     novels: [],
     isLoading: false,
     error: null,
@@ -43,9 +43,11 @@ export const useNovelStore = create<NovelState>((set, get) => ({
             if (error) throw error
             console.log('fetchNovels: success', data.length)
             set({ novels: data || [] })
-        } catch (clientError: any) {
+        } catch (clientError: unknown) {
             console.error('Supabase Client failed:', clientError)
-            set({ error: `Network Error: ${clientError.message}. Please disable AdBlockters.` })
+            let message = 'Unknown error'
+            if (clientError instanceof Error) message = clientError.message
+            set({ error: `Network Error: ${message}. Please disable AdBlockters.` })
         } finally {
             set({ isLoading: false })
         }
@@ -93,9 +95,11 @@ export const useNovelStore = create<NovelState>((set, get) => ({
                 novels: state.novels.filter(n => n.id !== id),
                 selectedNovelId: state.selectedNovelId === id ? null : state.selectedNovelId
             }))
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error deleting novel:', error)
-            alert('Failed to delete: ' + error.message)
+            if (error instanceof Error) {
+                alert('Failed to delete: ' + error.message)
+            }
         }
     },
 
@@ -112,7 +116,7 @@ export const useNovelStore = create<NovelState>((set, get) => ({
                 .eq('id', id)
 
             if (error) throw error
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error updating novel:', error)
             // simplified: revert not implemented for MVP
         }

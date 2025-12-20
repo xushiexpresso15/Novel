@@ -100,13 +100,13 @@ export function UserProfile() {
     )
 }
 
-function MenuButton({ icon: Icon, label, onClick, variant = 'default' }: { icon: any, label: string, onClick: () => void, variant?: 'default' | 'danger' }) {
+function MenuButton({ icon: Icon, label, onClick, variant = 'default' }: { icon: React.ElementType, label: string, onClick: () => void, variant?: 'default' | 'danger' }) {
     return (
         <button
             onClick={onClick}
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm font-medium ${variant === 'danger'
-                    ? 'hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500'
-                    : 'hover:bg-white/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white'
+                ? 'hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500'
+                : 'hover:bg-white/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white'
                 }`}
         >
             <Icon className={`w-4 h-4 ${variant === 'danger' ? 'text-red-400' : 'text-slate-400'}`} />

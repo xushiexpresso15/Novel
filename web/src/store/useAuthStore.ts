@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
-import { User } from '@supabase/supabase-js'
+import { User, Subscription } from '@supabase/supabase-js'
 
 interface AuthState {
     user: User | null
     isLoading: boolean
     checkUser: () => Promise<void>
-    initializeAuthListener: () => any
+    initializeAuthListener: () => Subscription
     signInWithGoogle: () => Promise<void>
     signOut: () => Promise<void>
 }

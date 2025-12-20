@@ -15,32 +15,22 @@ import { LoreNode } from './LoreNode'
 import { cn } from '@/lib/utils'
 import { useChapterStore } from '@/store/useChapterStore'
 import { useNovelStore } from '@/store/useNovelStore'
-import { useEffect, useState, useMemo } from 'react'
+import { useRef, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
 import { EditorToolbar } from './EditorToolbar'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 
-// Define a consistent color for this user (random for MVP)
-const getRandomColor = () => {
-    const colors = ['#958DF1', '#F98181', '#FBBC88', '#FAF594', '#70CFF8', '#94FADB', '#B9F18D']
-    return colors[Math.floor(Math.random() * colors.length)]
-}
+
 
 export function Editor() {
     const { activeChapterId, setWordCount, chapters, updateChapter } = useChapterStore()
     const { selectedNovelId, novels, updateNovel } = useNovelStore()
-    const [status, setStatus] = useState('connecting')
 
     const activeChapter = chapters.find(c => c.id === activeChapterId)
     const activeNovel = novels.find(n => n.id === selectedNovelId)
 
-    // Mock user
-    const user = useMemo(() => ({
-        name: 'Author-' + Math.floor(Math.random() * 100),
-        color: getRandomColor(),
-    }), [])
+
 
     const countWords = (text: string) => {
         const cjkCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length
@@ -48,6 +38,17 @@ export function Editor() {
         const englishCount = (otherText.match(/\S+/g) || []).length
         return cjkCount + englishCount
     }
+
+
+
+    const timeoutRef = useRef<NodeJS.Timeout>(undefined)
+
+    const debouncedUpdate = useCallback((id: string, content: string) => {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = setTimeout(() => {
+            updateChapter(id, { content })
+        }, 1000)
+    }, [updateChapter])
 
     const editor = useEditor({
         extensions: [
@@ -70,6 +71,7 @@ export function Editor() {
                 types: ['heading', 'paragraph'],
             }),
         ],
+        content: activeChapter?.content || '',
         editorProps: {
             attributes: {
                 class: cn(
@@ -82,20 +84,17 @@ export function Editor() {
             },
         },
         onCreate({ editor }) {
-            const content = editor.getHTML()
+            // Don't overwrite immediately on create, trust the content prop
             setWordCount(countWords(editor.getText()))
-            if (activeChapterId) {
-                updateChapter(activeChapterId, { content })
-            }
         },
         onUpdate({ editor }) {
             const content = editor.getHTML()
             setWordCount(countWords(editor.getText()))
             if (activeChapterId) {
-                updateChapter(activeChapterId, { content })
+                debouncedUpdate(activeChapterId, content)
             }
         }
-    }, [activeChapterId])
+    }, [activeChapterId]) // Re-create editor when chapter changes to load new content
 
     if (!activeChapterId) {
         return (

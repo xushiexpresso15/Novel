@@ -2,12 +2,11 @@
 
 import { Editor } from '@tiptap/react'
 import {
-    Bold, Italic, Underline, Strikethrough,
-    AlignLeft, AlignCenter, AlignRight, AlignJustify,
+    Bold, Italic, Strikethrough,
+    AlignLeft, AlignCenter, AlignRight,
     Quote, Link, Image, Undo, Redo,
-    Heading1, Heading2, Heading3,
-    List, ListOrdered, Indent, Outdent,
-    Maximize, Minimize, Type
+    Heading1, Heading2,
+    Maximize
 } from 'lucide-react'
 import { Toggle } from "@/components/ui/toggle"
 import { Button } from "@/components/ui/button"
@@ -179,7 +178,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                     }}
                     className="h-8 w-8 p-0 text-amber-900 dark:text-amber-100 hover:bg-black/5"
                 >
-                    <Image className="h-4 w-4" />
+                    <Image className="h-4 w-4" aria-label="Insert Image" />
                 </Button>
             </div>
 

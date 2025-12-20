@@ -3,7 +3,6 @@
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight } from "lucide-react"
 import {
     DndContext,
@@ -15,7 +14,6 @@ import {
     DragEndEvent,
 } from '@dnd-kit/core'
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
     rectSortingStrategy,
@@ -23,10 +21,10 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { cn } from "@/lib/utils"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { toast } from "sonner"
 
-function ChapterCard({ chapter, onClick, onDelete }: { chapter: any, onClick: () => void, onDelete: () => void }) {
+function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, title: string, order: number }, onClick: () => void, onDelete: () => void }) {
     const {
         attributes,
         listeners,
@@ -106,7 +104,7 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: any, onClick: ()
 
 export function NovelDashboard() {
     const { chapters, reorderChapters, addChapter, setActiveChapter, deleteChapter, fetchChapters } = useChapterStore()
-    const { novels, selectedNovelId, updateNovel } = useNovelStore()
+    const { novels, selectedNovelId } = useNovelStore()
 
     // Fallback if no novel selected (should handle better in real app)
     const activeNovel = novels.find(n => n.id === selectedNovelId) || { title: '未命名小說', id: 'default' }
