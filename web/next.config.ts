@@ -23,22 +23,9 @@ const nextConfig: NextConfig = {
     }
     return config
   },
-  // Silence turbopack error as we need webpack for aliasing (or until turbopack supports alias config easily)
   experimental: {
-    turbo: {
-      resolveAlias: {
-        'yjs': 'yjs',
-        'y-prosemirror': 'y-prosemirror',
-        'y-protocols': 'y-protocols',
-        // Dedupe ProseMirror packages
-        'prosemirror-model': 'prosemirror-model',
-        'prosemirror-state': 'prosemirror-state',
-        'prosemirror-view': 'prosemirror-view',
-        'prosemirror-transform': 'prosemirror-transform',
-        '@tiptap/core': '@tiptap/core',
-      }
-    }
-  } as any
+    // Removed "turbo" key to prevent invalid config warning
+  }
 };
 
 export default nextConfig;
