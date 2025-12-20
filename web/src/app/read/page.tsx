@@ -300,7 +300,8 @@ function ReaderContent() {
                                 {novel.description || '這本小說還沒有簡介...'}
                             </div>
 
-                            {(novel.description && novel.description.length > 100) && (
+                            {/* Check if description length > 100 OR has more than 5 lines */}
+                            {(novel.description && (novel.description.length > 100 || novel.description.split('\n').length > 5)) && (
                                 <button
                                     onClick={() => setIsDescExpanded(!isDescExpanded)}
                                     className="mt-4 flex items-center gap-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors mx-auto md:mx-0"

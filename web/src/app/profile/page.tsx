@@ -157,7 +157,7 @@ function ProfileContent() {
                                 <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
 
                                     {/* Cover Image */}
-                                    <div className="h-48 w-full relative overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0">
+                                    <div className="aspect-[2/1] w-full relative overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 border-b border-neutral-100 dark:border-neutral-800">
                                         {novel.cover_url ? (
                                             <img
                                                 src={novel.cover_url}
