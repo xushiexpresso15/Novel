@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useLoreStore, LoreItem, LoreType } from "@/store/useLoreStore"
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
-import { ScrollArea } from "@/components/ui/scroll-area"
+// Remove ScrollArea usage, use native overflow
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -28,7 +28,7 @@ function LoreCard({ item, onDelete, onEdit }: { item: LoreItem, onDelete: () => 
                     {item.type}
                 </span>
             </div>
-            {/* Hover expand effect: default line-clamp-2, hover:line-clamp-none */}
+            {/* Hover expand effect */}
             <div className="relative">
                 <p className="text-xs text-neutral-500 line-clamp-2 group-hover:line-clamp-none leading-relaxed transition-all duration-300">
                     {item.description}
@@ -72,7 +72,6 @@ function AddOrEditLoreDialog({
     const [prevOpen, setPrevOpen] = useState(open)
     const [prevItem, setPrevItem] = useState(editingItem)
 
-    // Sync state when props change (Render-time check to avoid useEffect cascade)
     if (open !== prevOpen || editingItem !== prevItem) {
         setPrevOpen(open)
         setPrevItem(editingItem)
@@ -136,7 +135,6 @@ export function RightSidebar() {
     const { items, addItem, removeItem, updateItem, fetchItems } = useLoreStore()
     const { wordCount } = useChapterStore()
     const { selectedNovelId } = useNovelStore()
-    console.log('RightSidebar rendering, wordCount:', wordCount)
     const [searchQuery, setSearchQuery] = useState('')
     const [activeTab, setActiveTab] = useState("character") // 'character' | 'location' | 'item' | 'ai'
 
@@ -193,9 +191,6 @@ export function RightSidebar() {
         const userMsg = aiInput
         setChatHistory(prev => [...prev, { role: 'user', content: userMsg }])
         setAiInput('')
-
-        // Show thinking state (optional, or just wait)
-        // For better UX, we could add a temporary 'thinking...' message
         setChatHistory(prev => [...prev, { role: 'ai', content: '思考中...' }])
 
         try {
@@ -205,14 +200,12 @@ export function RightSidebar() {
 
             if (error) throw error
 
-            // Replace loading message with real response
             setChatHistory(prev => {
                 const newHistory = [...prev]
                 const lastMsg = newHistory[newHistory.length - 1]
                 if (lastMsg.role === 'ai' && lastMsg.content === '思考中...') {
                     lastMsg.content = data.text
                 } else {
-                    // Fallback if state changed unexpectedly
                     newHistory.push({ role: 'ai', content: data.text })
                 }
                 return newHistory
@@ -231,105 +224,111 @@ export function RightSidebar() {
         }
     }
 
+    // Force integer reading time, minimum 1
+    const readingTime = Math.max(1, Math.ceil(wordCount / 500));
+
     return (
-        <div className="w-80 h-screen sticky top-0 border-l border-neutral-200 dark:border-neutral-800 bg-[#FDFBF7] dark:bg-neutral-900 flex flex-col overflow-hidden">
+        <div className="w-80 h-screen sticky top-0 border-l border-neutral-200 dark:border-neutral-800 bg-[#FDFBF7] dark:bg-neutral-900 flex flex-col">
 
             {/* Top Stats */}
-            <div className="grid grid-cols-2 gap-2 p-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20">
+            <div className="grid grid-cols-2 gap-2 p-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20 shrink-0">
                 <div className="bg-[#EAC435] text-white p-3 rounded-lg shadow-sm flex flex-col items-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">字數統計</span>
                     <span className="text-2xl font-black">{wordCount.toLocaleString()}</span>
                 </div>
                 <div className="bg-[#E27D60] text-white p-3 rounded-lg shadow-sm flex flex-col items-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">閱讀時間(分)</span>
-                    <span className="text-2xl font-black">{Math.ceil(wordCount / 500)}</span>
+                    <span className="text-2xl font-black">{readingTime}</span>
                 </div>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-                    <div className="px-4 pt-4">
-                        <div className="relative mb-4">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="搜尋設定..."
-                                className="pl-9 bg-white dark:bg-neutral-800"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <TabsList className="grid w-full grid-cols-4 bg-neutral-100 dark:bg-neutral-800 h-9 p-1">
-                            <TabsTrigger value="character" className="text-xs">角色</TabsTrigger>
-                            <TabsTrigger value="location" className="text-xs">地點</TabsTrigger>
-                            <TabsTrigger value="item" className="text-xs">物品</TabsTrigger>
-                            <TabsTrigger value="ai" className="text-xs"><Bot className="w-3 h-3 mr-1" />AI</TabsTrigger>
-                        </TabsList>
+            {/* Content Area - Flex Logic: 
+                The Tabs container takes all remaining space (flex-1).
+                Inside tabs, the content area takes all remaining space.
+            */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+                {/* Fixed Search Header */}
+                <div className="px-4 pt-4 shrink-0">
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="搜尋設定..."
+                            className="pl-9 bg-white dark:bg-neutral-800"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
+                    <TabsList className="grid w-full grid-cols-4 bg-neutral-100 dark:bg-neutral-800 h-9 p-1">
+                        <TabsTrigger value="character" className="text-xs">角色</TabsTrigger>
+                        <TabsTrigger value="location" className="text-xs">地點</TabsTrigger>
+                        <TabsTrigger value="item" className="text-xs">物品</TabsTrigger>
+                        <TabsTrigger value="ai" className="text-xs"><Bot className="w-3 h-3 mr-1" />AI</TabsTrigger>
+                    </TabsList>
+                </div>
 
-                    <div className="flex-1 overflow-hidden min-h-0 bg-neutral-50/50 dark:bg-neutral-900/50 p-4">
-                        <TabsContent value="ai" className="h-full mt-0 flex flex-col">
-                            <div className="flex flex-col h-full">
-                                <ScrollArea className="flex-1 pr-4">
-                                    <div className="space-y-4">
-                                        {chatHistory.map((msg, i) => (
-                                            <div key={i} className={cn("flex w-full", msg.role === 'user' ? "justify-end" : "justify-start")}>
-                                                <div className={cn(
-                                                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm",
-                                                    msg.role === 'user'
-                                                        ? "bg-indigo-600 text-white rounded-br-none"
-                                                        : "bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-100 dark:border-neutral-700 rounded-bl-none"
-                                                )}>
-                                                    {msg.content}
-                                                </div>
-                                            </div>
-                                        ))}
+                {/* Scrollable Content Zone */}
+                <div className="flex-1 min-h-0 bg-neutral-50/50 dark:bg-neutral-900/50 relative">
+
+                    {/* AI Tab */}
+                    <TabsContent value="ai" className="h-full m-0 p-0 flex flex-col absolute inset-0">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {chatHistory.map((msg, i) => (
+                                <div key={i} className={cn("flex w-full", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                                    <div className={cn(
+                                        "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                                        msg.role === 'user'
+                                            ? "bg-indigo-600 text-white rounded-br-none"
+                                            : "bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-100 dark:border-neutral-700 rounded-bl-none"
+                                    )}>
+                                        {msg.content}
                                     </div>
-                                </ScrollArea>
-                                <div className="mt-4 pt-2 border-t border-neutral-200 dark:border-neutral-800 flex gap-2">
-                                    <Input
-                                        value={aiInput}
-                                        onChange={e => setAiInput(e.target.value)}
-                                        placeholder="詢問 AI..."
-                                        onKeyDown={e => e.key === 'Enter' && handleSendAI()}
-                                        className="bg-white dark:bg-neutral-800"
-                                    />
-                                    <Button size="icon" onClick={handleSendAI} className="bg-indigo-600 hover:bg-indigo-700">
-                                        <Send className="w-4 h-4" />
-                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0 flex gap-2">
+                            <Input
+                                value={aiInput}
+                                onChange={e => setAiInput(e.target.value)}
+                                placeholder="詢問 AI..."
+                                onKeyDown={e => e.key === 'Enter' && handleSendAI()}
+                                className="bg-white dark:bg-neutral-800"
+                            />
+                            <Button size="icon" onClick={handleSendAI} className="bg-indigo-600 hover:bg-indigo-700">
+                                <Send className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </TabsContent>
+
+                    {/* Lore Tabs */}
+                    {['character', 'location', 'item'].map(type => (
+                        <TabsContent key={type} value={type} className="h-full m-0 p-0 absolute inset-0 flex flex-col">
+                            {/* The scroll container */}
+                            <div className="flex-1 overflow-y-auto p-4">
+                                <div className="space-y-3 pb-20">
+                                    {filteredItems.length === 0 ? (
+                                        <div className="text-center py-8 text-neutral-400 text-sm italic">
+                                            尚無{type === 'character' ? '角色' : type === 'location' ? '地點' : '物品'}資料
+                                        </div>
+                                    ) : (
+                                        filteredItems.map(item => (
+                                            <LoreCard
+                                                key={item.id}
+                                                item={item}
+                                                onDelete={() => removeItem(item.id)}
+                                                onEdit={() => handleOpenEdit(item)}
+                                            />
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         </TabsContent>
+                    ))}
+                </div>
+            </Tabs>
 
-                        {['character', 'location', 'item'].map(type => (
-                            <TabsContent key={type} value={type} className="h-full mt-0 pb-0 flex flex-col">
-                                <ScrollArea className="flex-1 pr-4">
-                                    <div className="space-y-3 pb-20">
-                                        {filteredItems.length === 0 ? (
-                                            <div className="text-center py-8 text-neutral-400 text-sm italic">
-                                                尚無{type === 'character' ? '角色' : type === 'location' ? '地點' : '物品'}資料
-                                            </div>
-                                        ) : (
-                                            filteredItems.map(item => (
-                                                <LoreCard
-                                                    key={item.id}
-                                                    item={item}
-                                                    onDelete={() => removeItem(item.id)}
-                                                    onEdit={() => handleOpenEdit(item)}
-                                                />
-                                            ))
-                                        )}
-                                    </div>
-                                </ScrollArea>
-                            </TabsContent>
-                        ))}
-                    </div>
-                </Tabs>
-            </div>
-
-            {/* Footer with Add Button (Only show on non-AI tabs) */}
+            {/* Footer with Add Button */}
             {activeTab !== 'ai' && (
-                <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky bottom-0 z-10">
+                <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky bottom-0 z-10 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                     <Button
                         className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-indigo-600 dark:hover:bg-indigo-300 transition-colors shadow-lg shadow-indigo-500/10"
                         onClick={handleOpenAdd}
@@ -340,7 +339,6 @@ export function RightSidebar() {
                 </div>
             )}
 
-            {/* Keeping the Dialog Mounted */}
             <AddOrEditLoreDialog
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}

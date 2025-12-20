@@ -131,8 +131,9 @@ export function Editor() {
                         />
                         {/* Chapter Title */}
                         <span className="text-muted-foreground text-xl font-medium mt-1"># {String(activeChapter?.order ? activeChapter.order + 1 : 1)}</span>
-                        <Input
-                            className="!text-5xl font-black text-neutral-800 dark:text-neutral-200 border-none shadow-none px-0 h-auto focus-visible:ring-0 placeholder:text-neutral-300"
+                        <input
+                            type="text"
+                            className="w-full text-6xl font-black text-neutral-800 dark:text-neutral-200 border-none bg-transparent outline-none placeholder:text-neutral-300 placeholder:font-bold"
                             placeholder="篇章標題"
                             value={activeChapter?.title || ''}
                             onChange={(e) => activeChapterId && updateChapter(activeChapterId, { title: e.target.value })}
