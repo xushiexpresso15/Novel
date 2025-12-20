@@ -43,9 +43,13 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
         zIndex: isDragging ? 50 : 'auto',
     }
 
-    // Strip HTML tags for preview and limit length
+    // Strip HTML tags but preserve newlines for preview
     const previewText = chapter.content
-        ? chapter.content.replace(/<[^>]*>?/gm, '')
+        ? chapter.content
+            .replace(/<\/p>/gi, '\n')
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<[^>]*>?/gm, '')
+            .trim()
         : ''
 
     return (
@@ -76,10 +80,18 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
                     <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-100 line-clamp-1 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {chapter.title}
                     </h3>
-                    <div className="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-6 leading-relaxed overflow-hidden text-ellipsis relative font-medium">
-                        {previewText || <span className="italic text-neutral-500 opacity-50">無內容...</span>}
-                        {/* Gradient fade at bottom for text overflow effect */}
-                        <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white dark:from-neutral-800 to-transparent"></div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed overflow-hidden relative font-medium h-[4.8rem] whitespace-pre-wrap break-words">
+                        {previewText || (
+                            <span className="text-neutral-400 dark:text-neutral-500 italic block">
+                                此章節目前尚無內容。
+                                <br />
+                                點擊「編輯」或卡片任何位置進入寫作模式。
+                                <br />
+                                這裡將會顯示您的文章預覽...
+                            </span>
+                        )}
+                        {/* Gradient fade covering the bottom part (4th line area) */}
+                        <div className="absolute bottom-0 left-0 w-full h-[2rem] bg-gradient-to-t from-white via-white/80 to-transparent dark:from-neutral-800 dark:via-neutral-800/80"></div>
                     </div>
                 </div>
 
