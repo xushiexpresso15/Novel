@@ -10,6 +10,7 @@ import { BookOpen, Calendar, User } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { UserProfile } from '@/components/UserProfile'
+import { WritePadLogo } from "@/components/WritePadLogo"
 
 export default function ExplorePage() {
     const { exploreNovels, fetchExploreNovels, isLoading } = usePublicStore()
@@ -33,20 +34,9 @@ export default function ExplorePage() {
             {/* Simple Header */}
             <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20">
                 <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <Link href="/" className="font-bold text-xl text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                        {/* Light Mode Logo */}
-                        <img
-                            src="/Novel/logo-light.png"
-                            alt="WritePad"
-                            className="h-8 w-auto dark:hidden"
-                        />
-                        {/* Dark Mode Logo */}
-                        <img
-                            src="/Novel/logo-dark.png"
-                            alt="WritePad"
-                            className="h-8 w-auto hidden dark:block"
-                        />
-                        <span className="ml-2 border-l border-neutral-300 dark:border-neutral-700 pl-3">探索</span>
+                    <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <WritePadLogo className="h-8 w-8" classNameText="text-xl" />
+                        <span className="ml-2 border-l border-neutral-300 dark:border-neutral-700 pl-3 font-bold text-xl text-neutral-900 dark:text-neutral-100">探索</span>
                     </Link>
                     <div className="flex items-center gap-4">
                         <Link href="/">

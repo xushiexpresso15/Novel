@@ -7,6 +7,7 @@ import { UserProfile } from "@/components/UserProfile"
 import { Button } from "@/components/ui/button"
 import { LiquidBackground } from "@/components/ui/LiquidBackground"
 import Link from 'next/link'
+import { WritePadLogo } from "@/components/WritePadLogo"
 
 
 export function NovelList() {
@@ -26,19 +27,8 @@ export function NovelList() {
 
             {/* Top Bar (Minimal) */}
             <div className="fixed top-0 left-0 right-0 z-40 p-6 flex justify-between items-center pointer-events-none">
-                <Link href="/" className="pointer-events-auto block">
-                    {/* Light Mode Logo (Dark Text) */}
-                    <img
-                        src="/Novel/logo-light.png"
-                        alt="WritePad"
-                        className="h-10 w-auto dark:hidden opacity-90 hover:opacity-100 transition-opacity"
-                    />
-                    {/* Dark Mode Logo (Light Text) */}
-                    <img
-                        src="/Novel/logo-dark.png"
-                        alt="WritePad"
-                        className="h-10 w-auto hidden dark:block opacity-90 hover:opacity-100 transition-opacity"
-                    />
+                <Link href="/" className="pointer-events-auto block hover:opacity-80 transition-opacity">
+                    <WritePadLogo className="h-10 w-10" />
                 </Link>
                 <div className="pointer-events-auto">
                     <UserProfile />

@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useNovelStore } from '@/store/useNovelStore'
 import { Button } from '@/components/ui/button'
 import { LiquidBackground } from '@/components/ui/LiquidBackground'
+import { WritePadLogo } from "@/components/WritePadLogo"
 
 export function LandingPage() {
     const { user, signInWithGoogle } = useAuthStore()
@@ -41,18 +42,7 @@ export function LandingPage() {
             >
                 <div className="pointer-events-auto bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-full px-6 py-3 flex items-center gap-8 shadow-lg shadow-black/5">
                     <div className="flex items-center gap-2">
-                        {/* Light Mode Logo */}
-                        <img
-                            src="/Novel/logo-light.png"
-                            alt="WritePad"
-                            className="h-8 w-auto dark:hidden"
-                        />
-                        {/* Dark Mode Logo */}
-                        <img
-                            src="/Novel/logo-dark.png"
-                            alt="WritePad"
-                            className="h-8 w-auto hidden dark:block"
-                        />
+                        <WritePadLogo className="h-8 w-8" classNameText="text-xl" />
                     </div>
                     <div className="flex items-center gap-4">
                         {user ? (
