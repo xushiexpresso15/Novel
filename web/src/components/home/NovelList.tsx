@@ -1,5 +1,3 @@
-'use client'
-
 import { useNovelStore } from "@/store/useNovelStore"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useEffect } from "react"
@@ -18,6 +16,9 @@ export function NovelList() {
     useEffect(() => {
         fetchNovels()
     }, [fetchNovels])
+
+    const hour = new Date().getHours()
+    const greeting = hour < 12 ? '早安' : hour < 18 ? '午安' : '晚安'
 
     return (
         <div className="relative min-h-screen text-slate-800 dark:text-slate-100 font-sans selection:bg-indigo-500/30">
@@ -39,9 +40,9 @@ export function NovelList() {
                     className="mb-12"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold mb-2">
-                        Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},
+                        {greeting}，
                         <span className="text-indigo-600 dark:text-indigo-400 block mt-1">
-                            {user?.user_metadata?.full_name?.split(' ')[0] || 'Writer'}.
+                            {user?.user_metadata?.full_name?.split(' ')[0] || '寫作助手'}。
                         </span>
                     </h2>
                 </motion.div>
@@ -49,7 +50,7 @@ export function NovelList() {
                 {/* Error Banner */}
                 {useNovelStore.getState().error && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl backdrop-blur-md">
-                        Error: {useNovelStore.getState().error}
+                        錯誤: {useNovelStore.getState().error}
                     </motion.div>
                 )}
 
@@ -65,7 +66,7 @@ export function NovelList() {
                         <div className="w-20 h-20 rounded-full bg-white/50 dark:bg-white/10 group-hover:bg-indigo-500 group-hover:text-white dark:group-hover:bg-indigo-500 flex items-center justify-center transition-colors shadow-lg">
                             <Plus className="w-8 h-8 transition-transform group-hover:rotate-90" />
                         </div>
-                        <span className="font-semibold text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300">Create New</span>
+                        <span className="font-semibold text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300">建立新小說</span>
                     </motion.button>
 
                     {/* Novel Cards */}
@@ -80,10 +81,21 @@ export function NovelList() {
                             className="group relative aspect-[3/4] rounded-3xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl hover:shadow-2xl hover:shadow-indigo-500/20 transition-all overflow-hidden cursor-pointer"
                             onClick={() => selectNovel(novel.id)}
                         >
-                            {/* Gradient Cover */}
-                            <div className={`h-3/5 w-full bg-gradient-to-br ${getGradient(index)} opacity-80 group-hover:opacity-100 transition-opacity`} />
+                            {/* Cover Image or Gradient */}
+                            {novel.cover_url ? (
+                                <div className="h-3/5 w-full relative overflow-hidden group-hover:opacity-100 transition-opacity">
+                                    <img
+                                        src={novel.cover_url}
+                                        alt={novel.title}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                                </div>
+                            ) : (
+                                <div className={`h-3/5 w-full bg-gradient-to-br ${getGradient(index)} opacity-80 group-hover:opacity-100 transition-opacity`} />
+                            )}
 
-                            <div className="p-6 flex flex-col justify-between h-2/5 relative z-10 glass-content">
+                            <div className="p-6 flex flex-col justify-between h-2/5 relative z-10 glass-content bg-white/50 dark:bg-black/50 backdrop-blur-md">
                                 <div>
                                     <h3 className="font-bold text-xl leading-tight line-clamp-2 mb-2 text-slate-800 dark:text-slate-100">{novel.title}</h3>
                                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">
@@ -97,7 +109,7 @@ export function NovelList() {
                                         className="h-8 w-8 text-red-500 hover:bg-red-50 rounded-full"
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            if (confirm('Delete novel?')) deleteNovel(novel.id)
+                                            if (confirm('確定要刪除這本小說嗎？')) deleteNovel(novel.id)
                                         }}
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -112,13 +124,13 @@ export function NovelList() {
             {/* Floating Dock Navigation (Google Style) */}
             <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
                 <div className="flex items-center gap-2 p-2 bg-white/80 dark:bg-black/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-full shadow-2xl shadow-indigo-500/10">
-                    <TooltipButton icon={<Home className="w-5 h-5" />} label="Home" onClick={() => setViewMode('landing')} />
+                    <TooltipButton icon={<Home className="w-5 h-5" />} label="首頁" onClick={() => setViewMode('landing')} />
                     <Link href="/explore">
-                        <TooltipButton icon={<Compass className="w-5 h-5" />} label="Explore" onClick={() => { }} />
+                        <TooltipButton icon={<Compass className="w-5 h-5" />} label="探索" onClick={() => { }} />
                     </Link>
                     <div className="w-px h-8 bg-slate-200 dark:bg-slate-800 mx-2" />
-                    <TooltipButton icon={<Settings className="w-5 h-5" />} label="Settings" onClick={() => alert('Settings coming soon!')} />
-                    <TooltipButton icon={<LogOut className="w-5 h-5 text-red-500" />} label="Sign Out" onClick={signOut} />
+                    <TooltipButton icon={<Settings className="w-5 h-5" />} label="設定" onClick={() => alert('Settings coming soon!')} />
+                    <TooltipButton icon={<LogOut className="w-5 h-5 text-red-500" />} label="登出" onClick={signOut} />
                 </div>
             </div>
         </div>

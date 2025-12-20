@@ -3,7 +3,7 @@
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { Button } from "@/components/ui/button"
-import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight, Users, Eye, ChevronLeft } from "lucide-react"
+import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight, Users, Eye, ChevronLeft, Image as ImageIcon, Loader2, Upload } from "lucide-react"
 import Link from 'next/link'
 import {
     DndContext,
@@ -22,11 +22,12 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { cn } from "@/lib/utils"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 import { NovelSettingsDialog } from "./NovelSettingsDialog"
 import { CollaborateDialog } from "./CollaborateDialog"
 import { UserProfile } from "@/components/UserProfile"
+import { supabase } from "@/lib/supabase"
 
 function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, title: string, order: number, content?: string }, onClick: () => void, onDelete: () => void }) {
     const {
@@ -75,7 +76,7 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
                 <div onClick={onClick} className="cursor-pointer flex-1 overflow-hidden">
                     <div className="flex items-center gap-2 mb-3 text-sm font-bold text-neutral-400 uppercase tracking-widest">
                         <span className="bg-neutral-100 dark:bg-neutral-900 px-2 py-1 rounded">
-                            CHAPTER {chapter.order}
+                            第 {chapter.order} 章
                         </span>
                     </div>
                     <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-100 line-clamp-1 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
@@ -126,14 +127,16 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
 
 export function NovelDashboard() {
     const { chapters, reorderChapters, addChapter, setActiveChapter, deleteChapter, fetchChapters } = useChapterStore()
-    const { novels, selectedNovelId, selectNovel } = useNovelStore()
+    const { novels, selectedNovelId, selectNovel, updateNovel } = useNovelStore()
 
     // Fallback if no novel selected (should handle better in real app)
-    const activeNovel = novels.find(n => n.id === selectedNovelId) || { id: 'default', title: '未命名小說', created_at: '', user_id: '', genre: '', is_public: false }
+    const activeNovel = novels.find(n => n.id === selectedNovelId) || { id: 'default', title: '未命名小說', created_at: '', user_id: '', genre: '', is_public: false, cover_url: '' }
 
     // Dialog States
     const [settingsOpen, setSettingsOpen] = useState(false)
     const [collaborateOpen, setCollaborateOpen] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         if (selectedNovelId) {
@@ -163,9 +166,48 @@ export function NovelDashboard() {
         }
     }
 
+    const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file || !selectedNovelId) return
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("圖片大小不能超過 2MB")
+            return
+        }
+
+        setIsUploading(true)
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${selectedNovelId}-${Date.now()}.${fileExt}`
+            const filePath = `${fileName}`
+
+            // Upload to Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from('covers')
+                .upload(filePath, file)
+
+            if (uploadError) throw uploadError
+
+            // Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('covers')
+                .getPublicUrl(filePath)
+
+            // Update Novel Record
+            await updateNovel(selectedNovelId, { cover_url: publicUrl })
+            toast.success("封面更新成功")
+        } catch (error: any) {
+            console.error('Upload error:', error)
+            alert('上傳失敗: ' + error.message)
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
     // Mock genre/visibility for now as they are not in store/db
     const genre = activeNovel.genre || "未分類"
     const isPublic = activeNovel.is_public || false
+    const coverUrl = activeNovel.cover_url
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] dark:bg-neutral-950 p-8 overflow-y-auto">
@@ -184,10 +226,10 @@ export function NovelDashboard() {
                                 onClick={() => selectNovel(null)}
                             >
                                 <ChevronLeft className="w-4 h-4 mr-1" />
-                                Back to List
+                                返回列表
                             </Button>
                             <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold tracking-wide uppercase">
-                                Current Project
+                                當前專案
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -204,38 +246,67 @@ export function NovelDashboard() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-                        <div className="space-y-4">
-                            <h1 className="text-6xl font-black text-neutral-900 dark:text-white tracking-tight leading-none">
+                    <div className="flex flex-col md:flex-row items-start gap-8">
+                        {/* Cover Image Upload Area */}
+                        <div className="group relative w-32 h-44 flex-shrink-0 bg-neutral-200 dark:bg-neutral-800 rounded-lg overflow-hidden shadow-inner cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                            {coverUrl ? (
+                                <img src={coverUrl} alt="Cover" className="w-full h-full object-cover transition-opacity group-hover:opacity-70" />
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center text-neutral-400">
+                                    <ImageIcon className="w-8 h-8 mb-2" />
+                                    <span className="text-xs">上傳封面</span>
+                                </div>
+                            )}
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                {isUploading ? (
+                                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                ) : (
+                                    <Upload className="w-6 h-6 text-white" />
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleCoverUpload}
+                                disabled={isUploading}
+                            />
+                        </div>
+
+                        <div className="flex-1 space-y-4 md:mt-2">
+                            <h1 className="text-5xl md:text-6xl font-black text-neutral-900 dark:text-white tracking-tight leading-none">
                                 {activeNovel.title}
                             </h1>
                             <div className="flex items-center gap-4 text-neutral-500 text-sm font-medium">
                                 <span className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-900 px-2 py-1 rounded text-neutral-600 dark:text-neutral-400">
                                     <FileText className="w-3 h-3" />
-                                    {chapters.length} Chapters
+                                    {chapters.length} 章
                                 </span>
                                 <span className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-900 px-2 py-1 rounded text-neutral-600 dark:text-neutral-400">
                                     {genre}
                                 </span>
                                 <span className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-900 px-2 py-1 rounded text-neutral-600 dark:text-neutral-400">
                                     <Eye className="w-3 h-3" />
-                                    {isPublic ? "Public" : "Private"}
+                                    {isPublic ? "公開" : "私人"}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
                             <Link href={`/novel?id=${activeNovel.id}`} target="_blank">
-                                <Button variant="outline" className="border-neutral-300 rounded-full px-6" >
+                                <Button variant="outline" className="border-neutral-300 rounded-full px-6 w-full sm:w-auto" >
                                     <Eye className="w-4 h-4 mr-2" />
                                     預覽
                                 </Button>
                             </Link>
-                            <Button variant="outline" className="border-neutral-300 rounded-full px-6" onClick={() => setSettingsOpen(true)}>
+                            <Button variant="outline" className="border-neutral-300 rounded-full px-6 w-full sm:w-auto" onClick={() => setSettingsOpen(true)}>
                                 <Settings className="w-4 h-4 mr-2" />
                                 設定
                             </Button>
-                            <Button onClick={handleAddChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none rounded-full px-6">
+                            <Button onClick={handleAddChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none rounded-full px-6 w-full sm:w-auto">
                                 <Plus className="w-4 h-4 mr-2" />
                                 新章節
                             </Button>

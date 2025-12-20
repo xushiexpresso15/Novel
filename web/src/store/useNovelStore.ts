@@ -9,6 +9,7 @@ export interface Novel {
     genre?: string
     is_public?: boolean
     description?: string
+    cover_url?: string
 }
 
 interface NovelState {

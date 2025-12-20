@@ -20,6 +20,16 @@ function ProfileContent() {
         }
     }, [userId, fetchProfile, fetchPublicNovels])
 
+    const getGradient = (index: number) => {
+        const gradients = [
+            'from-blue-200 to-cyan-200 dark:from-blue-900 dark:to-cyan-900',
+            'from-purple-200 to-pink-200 dark:from-purple-900 dark:to-pink-900',
+            'from-amber-200 to-orange-200 dark:from-amber-900 dark:to-orange-900',
+            'from-emerald-200 to-teal-200 dark:from-emerald-900 dark:to-teal-900',
+        ]
+        return gradients[index % gradients.length]
+    }
+
     if (isLoading) {
         return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] dark:bg-neutral-950">
             <div className="animate-pulse">Loading...</div>
@@ -57,7 +67,7 @@ function ProfileContent() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4" />
-                                <span>Joined {currentProfile?.created_at ? format(new Date(currentProfile.created_at), 'MMMM yyyy') : 'Recently'}</span>
+                                <span>加入時間 {currentProfile?.created_at ? format(new Date(currentProfile.created_at), 'yyyy MMMM') : 'Recently'}</span>
                             </div>
                         </div>
                     </div>
@@ -78,23 +88,39 @@ function ProfileContent() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {publicNovels.map(novel => (
+                            {publicNovels.map((novel, index) => (
                                 <Link key={novel.id} href={`/novel?id=${novel.id}`}>
-                                    <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 h-full hover:shadow-md hover:border-indigo-500/50 transition-all">
-                                        <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                                            {novel.title}
-                                        </h3>
-                                        <div className="text-xs text-neutral-400 mb-4 bg-neutral-100 dark:bg-neutral-800 inline-block px-2 py-1 rounded">
-                                            {novel.genre || '未分類'}
+                                    <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
+
+                                        {/* Cover Image */}
+                                        <div className="h-48 w-full relative overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0">
+                                            {novel.cover_url ? (
+                                                <img
+                                                    src={novel.cover_url}
+                                                    alt={novel.title}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className={`w-full h-full bg-gradient-to-br ${getGradient(index)} opacity-80`} />
+                                            )}
                                         </div>
-                                        <div className="text-sm text-neutral-500 line-clamp-3 mb-4 h-[4.5em]">
-                                            {novel.description || '點擊閱讀更多...'}
-                                        </div>
-                                        <div className="text-xs text-neutral-400 flex justify-between items-center mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800">
-                                            <span>{format(new Date(novel.created_at), 'yyyy-MM-dd')}</span>
-                                            <span className="text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                                                閱讀 →
-                                            </span>
+
+                                        <div className="p-6 flex flex-col flex-1">
+                                            <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1 text-slate-900 dark:text-white">
+                                                {novel.title}
+                                            </h3>
+                                            <div className="text-xs text-neutral-400 mb-4 bg-neutral-100 dark:bg-neutral-800 inline-block px-2 py-1 rounded self-start">
+                                                {novel.genre || '未分類'}
+                                            </div>
+                                            <div className="text-sm text-neutral-500 line-clamp-3 mb-4 h-[4.5em] flex-1">
+                                                {novel.description || '點擊閱讀更多...'}
+                                            </div>
+                                            <div className="text-xs text-neutral-400 flex justify-between items-center mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800 w-full">
+                                                <span>{format(new Date(novel.created_at), 'yyyy-MM-dd')}</span>
+                                                <span className="text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                                    閱讀 <span className="text-lg leading-3">→</span>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </Link>

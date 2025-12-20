@@ -49,7 +49,7 @@ export function LandingPage() {
                                 onClick={() => setViewMode('dashboard')}
                                 className="rounded-full bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 transition-all active:scale-95"
                             >
-                                Enter Workspace <ArrowRight className="w-4 h-4 ml-2" />
+                                進入工作區 <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                         ) : (
                             <Button
@@ -57,7 +57,7 @@ export function LandingPage() {
                                 variant="ghost"
                                 className="rounded-full hover:bg-black/5 dark:hover:bg-white/10"
                             >
-                                Login
+                                登入
                             </Button>
                         )}
                     </div>
@@ -76,7 +76,7 @@ export function LandingPage() {
                     <motion.div variants={fadeInUp} className="flex justify-center">
                         <span className="px-4 py-1.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/20 text-sm font-medium text-indigo-600 dark:text-indigo-300 flex items-center gap-2 shadow-sm">
                             <Sparkles className="w-4 h-4" />
-                            Reimagined for Creators
+                            為創作者重新想像的寫作工具
                         </span>
                     </motion.div>
 
@@ -85,8 +85,8 @@ export function LandingPage() {
                         variants={fadeInUp}
                         className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-transparent bg-clip-text bg-gradient-to-br from-indigo-900 via-slate-800 to-black dark:from-white dark:via-slate-200 dark:to-slate-400"
                     >
-                        Craft Your <br />
-                        <span className="italic font-serif text-indigo-600 dark:text-indigo-400">Masterpiece.</span>
+                        打造您的 <br />
+                        <span className="italic font-serif text-indigo-600 dark:text-indigo-400">傳世之作。</span>
                     </motion.h1>
 
                     {/* Subheadline */}
@@ -94,9 +94,9 @@ export function LandingPage() {
                         variants={fadeInUp}
                         className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed"
                     >
-                        A distract-free writing environment that flows like water.
+                        如流水般流暢的無干擾寫作環境。
                         <br />
-                        Simple. Powerful. Yours.
+                        簡約。強大。專屬於您。
                     </motion.p>
 
                     {/* CTA */}
@@ -106,14 +106,14 @@ export function LandingPage() {
                                 onClick={() => setViewMode('dashboard')}
                                 className="h-16 px-10 rounded-full text-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all hover:scale-105 active:scale-95"
                             >
-                                Go to Dashboard
+                                前往儀表板
                             </Button>
                         ) : (
                             <Button
                                 onClick={signInWithGoogle}
                                 className="h-16 px-10 rounded-full text-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 shadow-xl transition-all hover:scale-105 active:scale-95"
                             >
-                                Start Writing Free
+                                免費開始寫作
                             </Button>
                         )}
                     </motion.div>
