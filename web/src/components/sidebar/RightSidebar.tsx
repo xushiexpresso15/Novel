@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 import { Search, Plus, Trash2, Bot, Send } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useLoreStore, LoreItem, LoreType } from "@/store/useLoreStore"
+import { useChapterStore } from "@/store/useChapterStore"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -137,7 +139,9 @@ import { useNovelStore } from "@/store/useNovelStore"
 
 export function RightSidebar() {
     const { items, addItem, removeItem, updateItem, fetchItems } = useLoreStore()
+    const { wordCount } = useChapterStore()
     const { selectedNovelId } = useNovelStore()
+    console.log('RightSidebar rendering, wordCount:', wordCount)
     const [searchQuery, setSearchQuery] = useState('')
     const [activeTab, setActiveTab] = useState("character") // 'character' | 'location' | 'item' | 'ai'
 
@@ -188,17 +192,48 @@ export function RightSidebar() {
         setDialogOpen(true)
     }
 
-    const handleSendAI = () => {
+    const handleSendAI = async () => {
         if (!aiInput.trim()) return
 
         const userMsg = aiInput
         setChatHistory(prev => [...prev, { role: 'user', content: userMsg }])
         setAiInput('')
 
-        // Simulate AI Response
-        setTimeout(() => {
-            setChatHistory(prev => [...prev, { role: 'ai', content: `這是對 "${userMsg}" 的模擬回應。 (AI 功能尚未連接)` }])
-        }, 1000)
+        // Show thinking state (optional, or just wait)
+        // For better UX, we could add a temporary 'thinking...' message
+        setChatHistory(prev => [...prev, { role: 'ai', content: '思考中...' }])
+
+        try {
+            const { data, error } = await supabase.functions.invoke('gemini', {
+                body: { prompt: userMsg }
+            })
+
+            if (error) throw error
+
+            // Replace loading message with real response
+            setChatHistory(prev => {
+                const newHistory = [...prev]
+                const lastMsg = newHistory[newHistory.length - 1]
+                if (lastMsg.role === 'ai' && lastMsg.content === '思考中...') {
+                    lastMsg.content = data.text
+                } else {
+                    // Fallback if state changed unexpectedly
+                    newHistory.push({ role: 'ai', content: data.text })
+                }
+                return newHistory
+            })
+        } catch (error) {
+            console.error('AI Error:', error)
+            setChatHistory(prev => {
+                const newHistory = [...prev]
+                const lastMsg = newHistory[newHistory.length - 1]
+                if (lastMsg.role === 'ai' && lastMsg.content === '思考中...') {
+                    lastMsg.content = '抱歉，AI 暫時無法回應。請稍後再試。'
+                }
+                return newHistory
+            })
+            toast.error('AI 連線失敗')
+        }
     }
 
     return (
@@ -208,7 +243,7 @@ export function RightSidebar() {
             <div className="grid grid-cols-2 gap-2 p-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20">
                 <div className="bg-[#EAC435] text-white p-3 rounded-lg shadow-sm flex flex-col items-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">字數統計</span>
-                    <span className="text-2xl font-black">2,451</span>
+                    <span className="text-2xl font-black">{wordCount.toLocaleString()}</span>
                 </div>
                 <div className="bg-[#E27D60] text-white p-3 rounded-lg shadow-sm flex flex-col items-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">閱讀時間(分)</span>

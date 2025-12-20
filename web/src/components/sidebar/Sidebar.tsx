@@ -7,11 +7,12 @@ import { useNovelStore } from "@/store/useNovelStore"
 import { toast } from "sonner"
 
 export function Sidebar() {
-    const { chapters, setActiveChapter } = useChapterStore()
+    const { chapters, setActiveChapter, activeChapterId } = useChapterStore()
     const { novels, selectedNovelId } = useNovelStore()
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)
     const novelTitle = activeNovel?.title || "未命名小說"
+    const currentChapter = chapters.find(c => c.id === activeChapterId)
 
     const handleAction = (action: string) => {
         toast.success(`${action} 成功`, {
@@ -36,14 +37,22 @@ export function Sidebar() {
                         variant="ghost"
                         size="sm"
                         className="absolute top-4 left-4 h-8 px-2 text-slate-500 hover:text-slate-900 hover:bg-white/40 text-xs uppercase tracking-wider font-bold"
-                        onClick={() => setActiveChapter('')}
+                        onClick={() => setActiveChapter(null)}
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
 
-                    <h1 className="mt-8 text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2 w-full text-center" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                        #{novelTitle}
-                    </h1>
+                    <div className="flex flex-col items-center mt-8 w-full">
+                        <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">
+                            {novelTitle}
+                        </h2>
+                        <span className="text-2xl text-slate-400 dark:text-slate-600 font-serif italic mb-1">
+                            # {currentChapter?.order}
+                        </span>
+                        <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2 w-full text-center" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                            {currentChapter?.title || "新章節"}
+                        </h1>
+                    </div>
                 </div>
             </div>
 
@@ -57,6 +66,8 @@ export function Sidebar() {
                             description: `已儲存 ${count} 個章節至草稿`,
                             duration: 2000
                         })
+                        // Navigate back to chapter list
+                        setActiveChapter(null)
                     }}
                     className="w-full bg-[#EAC435] hover:bg-[#d6b22f] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
                 >
