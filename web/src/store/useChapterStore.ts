@@ -9,8 +9,9 @@ export interface Chapter {
     order: number
     content?: string
     is_published?: boolean
-    published_at?: string
+    published_at?: string | null
 }
+
 
 interface ChapterStore {
     chapters: Chapter[]
@@ -24,6 +25,7 @@ interface ChapterStore {
     updateChapter: (id: string, data: Partial<Chapter>) => Promise<void>
     publishChapter: (id: string) => Promise<void>
     scheduleChapter: (id: string, date: Date) => Promise<void>
+    unpublishChapter: (id: string) => Promise<void>
     deleteChapter: (id: string) => Promise<void>
     wordCount: number
     setWordCount: (count: number) => void
@@ -175,6 +177,27 @@ export const useChapterStore = create<ChapterStore>((set, get) => ({
             toast.success('預約成功', {
                 description: `將於 ${date.toLocaleString()} 自動公開`
             })
+        }
+    },
+
+    unpublishChapter: async (id) => {
+        const data = { is_published: false, published_at: null }
+
+        // Optimistic
+        set((state) => ({
+            chapters: state.chapters.map((c) => (c.id === id ? { ...c, ...data } : c)),
+        }))
+
+        const { error } = await supabase
+            .from('chapters')
+            .update(data)
+            .eq('id', id)
+
+        if (error) {
+            console.error('Error unpublishing chapter:', error)
+            toast.error('取消發布失敗')
+        } else {
+            toast.success('已設為未公開')
         }
     },
 

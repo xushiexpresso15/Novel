@@ -29,7 +29,7 @@ import { CollaborateDialog } from "./CollaborateDialog"
 import { UserProfile } from "@/components/UserProfile"
 import { supabase } from "@/lib/supabase"
 
-function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, title: string, order: number, content?: string, is_published?: boolean, published_at?: string }, onClick: () => void, onDelete: () => void }) {
+function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, title: string, order: number, content?: string, is_published?: boolean, published_at?: string | null }, onClick: () => void, onDelete: () => void }) {
     const {
         attributes,
         listeners,

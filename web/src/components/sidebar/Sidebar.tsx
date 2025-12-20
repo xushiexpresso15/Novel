@@ -7,13 +7,14 @@ import { useState } from "react"
 import { ScheduleDialog } from "./ScheduleDialog"
 
 export function Sidebar() {
-    const { activeChapterId, publishChapter, scheduleChapter, setActiveChapter } = useChapterStore()
+    const { chapters, activeChapterId, publishChapter, scheduleChapter, unpublishChapter, setActiveChapter } = useChapterStore()
     const { novels, selectedNovelId } = useNovelStore()
 
     const [scheduleOpen, setScheduleOpen] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)
+    const activeChapter = chapters.find(c => c.id === activeChapterId)
     const novelTitle = activeNovel?.title || "未命名小說"
 
     return (
@@ -41,55 +42,95 @@ export function Sidebar() {
                         <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest text-center" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                             {novelTitle}
                         </h1>
+                        {activeChapter?.title && (
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                                {activeChapter.title}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* Action Buttons */}
             <div className="p-4 space-y-3 relative z-10 font-[family-name:var(--font-geist-sans)]">
-                <Button
-                    onClick={() => {
-                        toast.success('儲存成功', {
-                            description: `章節已儲存為草稿`,
-                            duration: 2000
-                        })
-                    }}
-                    className="w-full bg-[#EAC435] hover:bg-[#d6b22f] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
-                >
-                    <Save className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold">儲存為草稿</span>
-                </Button>
+                {activeChapter?.is_published ? (
+                    // PUBLISHED STATE
+                    <>
+                        <Button
+                            onClick={() => {
+                                toast.success('更新成功', {
+                                    description: `章節內容已同步至線上`,
+                                    duration: 2000
+                                })
+                            }}
+                            className="w-full bg-green-500 hover:bg-green-600 text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                        >
+                            <Save className="w-5 h-5 mb-1" />
+                            <span className="text-xs font-bold">更新內容</span>
+                        </Button>
 
-                <Button
-                    onClick={async () => {
-                        if (activeChapterId) {
-                            setIsPublishing(true)
-                            await publishChapter(activeChapterId)
-                            setIsPublishing(false)
-                        } else {
-                            toast.error("請先選擇章節")
-                        }
-                    }}
-                    disabled={isPublishing}
-                    className="w-full bg-[#5DADE2] hover:bg-[#4a9bc8] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
-                >
-                    <Upload className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold">{isPublishing ? '發布中...' : '立即發布'}</span>
-                </Button>
+                        <Button
+                            onClick={async () => {
+                                if (activeChapterId) {
+                                    if (confirm("確定要將此章節設為未公開嗎？")) {
+                                        await unpublishChapter(activeChapterId)
+                                    }
+                                }
+                            }}
+                            className="w-full bg-neutral-500 hover:bg-neutral-600 text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                        >
+                            <Upload className="w-5 h-5 mb-1 rotate-180" />
+                            <span className="text-xs font-bold">設為未公開</span>
+                        </Button>
+                    </>
+                ) : (
+                    // DRAFT STATE
+                    <>
+                        <Button
+                            onClick={() => {
+                                toast.success('儲存成功', {
+                                    description: `章節已儲存為草稿`,
+                                    duration: 2000
+                                })
+                            }}
+                            className="w-full bg-[#EAC435] hover:bg-[#d6b22f] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                        >
+                            <Save className="w-5 h-5 mb-1" />
+                            <span className="text-xs font-bold">儲存為草稿</span>
+                        </Button>
 
-                <Button
-                    onClick={() => {
-                        if (activeChapterId) {
-                            setScheduleOpen(true)
-                        } else {
-                            toast.error("請先選擇章節")
-                        }
-                    }}
-                    className="w-full bg-[#808B96] hover:bg-[#6c7680] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
-                >
-                    <Calendar className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold">預約發文</span>
-                </Button>
+                        <Button
+                            onClick={async () => {
+                                if (activeChapterId) {
+                                    setIsPublishing(true)
+                                    await publishChapter(activeChapterId)
+                                    setIsPublishing(false)
+                                } else {
+                                    toast.error("請先選擇章節")
+                                }
+                            }}
+                            disabled={isPublishing}
+                            className="w-full bg-[#5DADE2] hover:bg-[#4a9bc8] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                        >
+                            <Upload className="w-5 h-5 mb-1" />
+                            <span className="text-xs font-bold">{isPublishing ? '發布中...' : '立即發布'}</span>
+                        </Button>
+
+                        <Button
+                            onClick={() => {
+                                if (activeChapterId) {
+                                    setScheduleOpen(true)
+                                } else {
+                                    toast.error("請先選擇章節")
+                                }
+                            }}
+                            className="w-full bg-[#808B96] hover:bg-[#6c7680] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
+                        >
+                            <Calendar className="w-5 h-5 mb-1" />
+                            <span className="text-xs font-bold">預約發文</span>
+                        </Button>
+                    </>
+                )}
             </div>
 
             <ScheduleDialog
