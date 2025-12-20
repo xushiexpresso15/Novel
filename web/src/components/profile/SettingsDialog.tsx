@@ -12,6 +12,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     const { user, signOut, checkUser } = useAuthStore()
     const [activeTab, setActiveTab] = useState('profile')
     const [isLoading, setIsLoading] = useState(false)
+    const [isDeleteConfirm, setIsDeleteConfirm] = useState(false)
 
     // Profile State
     const [fullName, setFullName] = useState('')
@@ -203,14 +204,59 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                             {activeTab === 'danger' && (
                                 <div className="space-y-6">
                                     <h3 className="text-2xl font-bold text-red-500">Danger Zone</h3>
-                                    <div className="p-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20">
-                                        <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">Delete Account</h4>
-                                        <p className="text-sm text-red-600/70 mb-4 leading-relaxed">
-                                            Once you delete your account, there is no going back. Please be certain.
-                                            All your novels will be permanently deleted.
-                                        </p>
-                                        <Button variant="destructive" disabled>Delete Account</Button>
-                                    </div>
+                                    {!isDeleteConfirm ? (
+                                        <div className="p-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20">
+                                            <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">Delete Account</h4>
+                                            <p className="text-sm text-red-600/70 mb-4 leading-relaxed">
+                                                Once you delete your account, there is no going back. Please be certain.
+                                                All your novels will be permanently deleted.
+                                            </p>
+                                            <Button
+                                                variant="destructive"
+                                                onClick={() => setIsDeleteConfirm(true)}
+                                            >
+                                                Delete Account
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className="p-6 rounded-2xl border border-red-500 bg-red-100 dark:bg-red-900/40 animate-in fade-in zoom-in-95 duration-200">
+                                            <h4 className="font-bold text-red-800 dark:text-red-200 mb-4 text-lg">Are you absolutely sure?</h4>
+                                            <p className="text-sm text-red-800/80 dark:text-red-200/80 mb-6">
+                                                This action cannot be undone. This will permanently delete your account
+                                                and remove all your data from our servers.
+                                            </p>
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1 bg-white dark:bg-black border-red-200 dark:border-red-800"
+                                                    onClick={() => setIsDeleteConfirm(false)}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    className="flex-1"
+                                                    disabled={isLoading}
+                                                    onClick={async () => {
+                                                        setIsLoading(true)
+                                                        try {
+                                                            const { error } = await supabase.rpc('delete_own_account')
+                                                            if (error) throw error
+                                                            await signOut()
+                                                            onOpenChange(false)
+                                                        } catch (error) {
+                                                            console.error('Delete account error:', error)
+                                                            alert('Failed to delete account. Script enable_delete_account.sql required.')
+                                                        } finally {
+                                                            setIsLoading(false)
+                                                        }
+                                                    }}
+                                                >
+                                                    {isLoading ? 'Deleting...' : 'Yes, Delete Everything'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </motion.div>
