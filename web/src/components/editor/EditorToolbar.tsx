@@ -100,21 +100,31 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
             <Separator orientation="vertical" className="h-6 bg-amber-900/20 mx-1" />
 
-            {/* Alignment (Placeholder icons as exact Tiptap align may need extension) */}
+            {/* Alignment */}
             <div className="flex items-center gap-0.5">
                 <Toggle
                     size="sm"
-                    // onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}
+                    pressed={editor.isActive({ textAlign: 'left' })}
+                    onPressedChange={() => editor.chain().focus().setTextAlign('left').run()}
                     className="h-8 w-8 p-0 hover:bg-amber-200/50 text-amber-900 dark:text-amber-100"
                 >
                     <AlignLeft className="h-4 w-4" />
                 </Toggle>
                 <Toggle
                     size="sm"
-                    // onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}
+                    pressed={editor.isActive({ textAlign: 'center' })}
+                    onPressedChange={() => editor.chain().focus().setTextAlign('center').run()}
                     className="h-8 w-8 p-0 hover:bg-amber-200/50 text-amber-900 dark:text-amber-100"
                 >
                     <AlignCenter className="h-4 w-4" />
+                </Toggle>
+                <Toggle
+                    size="sm"
+                    pressed={editor.isActive({ textAlign: 'right' })}
+                    onPressedChange={() => editor.chain().focus().setTextAlign('right').run()}
+                    className="h-8 w-8 p-0 hover:bg-amber-200/50 text-amber-900 dark:text-amber-100"
+                >
+                    <AlignRight className="h-4 w-4" />
                 </Toggle>
             </div>
 
@@ -133,13 +143,40 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-amber-900 dark:text-amber-100 hover:bg-black/5"
+                    onClick={() => {
+                        const previousUrl = editor.getAttributes('link').href
+                        const url = window.prompt('URL', previousUrl)
+
+                        // cancelled
+                        if (url === null) {
+                            return
+                        }
+
+                        // empty
+                        if (url === '') {
+                            editor.chain().focus().extendMarkRange('link').unsetLink().run()
+                            return
+                        }
+
+                        // update
+                        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+                    }}
+                    className={cn(
+                        "h-8 w-8 p-0 text-amber-900 dark:text-amber-100 hover:bg-black/5",
+                        editor.isActive('link') && "bg-amber-400/50"
+                    )}
                 >
                     <Link className="h-4 w-4" />
                 </Button>
                 <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => {
+                        const url = window.prompt('Image URL')
+                        if (url) {
+                            editor.chain().focus().setImage({ src: url }).run()
+                        }
+                    }}
                     className="h-8 w-8 p-0 text-amber-900 dark:text-amber-100 hover:bg-black/5"
                 >
                     <Image className="h-4 w-4" />

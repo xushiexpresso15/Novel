@@ -14,6 +14,7 @@ interface ChapterStore {
     setActiveChapter: (id: string) => void
     reorderChapters: (activeId: string, overId: string) => void
     updateChapter: (id: string, data: Partial<Chapter>) => void
+    deleteChapter: (id: string) => void
     wordCount: number
     setWordCount: (count: number) => void
 }
@@ -50,6 +51,11 @@ export const useChapterStore = create<ChapterStore>((set) => ({
     updateChapter: (id, data) =>
         set((state) => ({
             chapters: state.chapters.map((c) => (c.id === id ? { ...c, ...data } : c)),
+        })),
+    deleteChapter: (id) =>
+        set((state) => ({
+            chapters: state.chapters.filter((c) => c.id !== id),
+            activeChapterId: state.activeChapterId === id ? null : state.activeChapterId
         })),
     wordCount: 0,
     setWordCount: (count) => set({ wordCount: count }),

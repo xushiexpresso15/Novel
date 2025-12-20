@@ -40,6 +40,13 @@ export function Editor() {
         color: getRandomColor(),
     }), [])
 
+    const countWords = (text: string) => {
+        const cjkCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length
+        const otherText = text.replace(/[\u4e00-\u9fa5]/g, ' ')
+        const englishCount = (otherText.match(/\S+/g) || []).length
+        return cjkCount + englishCount
+    }
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -71,10 +78,10 @@ export function Editor() {
             },
         },
         onCreate({ editor }) {
-            setWordCount(editor.storage.characterCount.words())
+            setWordCount(countWords(editor.getText()))
         },
         onUpdate({ editor }) {
-            setWordCount(editor.storage.characterCount.words())
+            setWordCount(countWords(editor.getText()))
         }
     }, [activeChapterId])
 
