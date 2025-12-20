@@ -2,13 +2,12 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  // GitHub Pages usually requires a basePath if not using a custom domain.
-  // We leave it commented out for the user to enable if needed.
-  basePath: '/Novel',
-  images: {
-    unoptimized: true, // Required for static export
-  },
+  // output: 'export', // Disabled for dynamic routing support
+  // basePath: '/Novel',
+  // images: {
+  //   unoptimized: true,
+  // },
+  // Keeping webpack config for Yjs deduplication match
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
