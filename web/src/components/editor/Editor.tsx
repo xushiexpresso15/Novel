@@ -9,7 +9,7 @@ import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
 import { TabExtension } from './TabExtension'
-import { IndentParagraph } from './IndentParagraph'
+import { WordPasteHandler } from './WordPasteHandler'
 import { LoreNode } from './LoreNode'
 
 import { cn } from '@/lib/utils'
@@ -54,10 +54,14 @@ export function Editor() {
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
-                paragraph: false,
+                paragraph: {
+                    HTMLAttributes: {
+                        class: 'min-h-[1em]',
+                    }
+                },
             }),
-            IndentParagraph,
             TabExtension,
+            WordPasteHandler,
             LoreNode,
             Placeholder.configure({
                 placeholder: '開始你的創作...',
@@ -82,6 +86,7 @@ export function Editor() {
                     'selection:bg-yellow-200 selection:text-black',
                     'whitespace-pre-wrap'
                 ),
+                style: 'tab-size: 2em;',
             },
         },
         onCreate({ editor }) {
