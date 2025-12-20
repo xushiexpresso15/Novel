@@ -51,8 +51,9 @@ export const useAuthStore = create<AuthState>((set) => ({
                 }
             })
             if (error) throw error
-        } catch (error) {
+        } catch (error: any) {
             console.error('Login error:', error)
+            alert(`Login failed: ${error.message || error.toString()}`)
         }
     },
     signOut: async () => {
