@@ -3,12 +3,18 @@
 import { Editor } from "@/components/editor/Editor"
 import { Sidebar } from "@/components/sidebar/Sidebar"
 import { RightSidebar } from "@/components/sidebar/RightSidebar"
-import { useNovelStore } from "@/store/useNovelStore"
+import { NovelDashboard } from "@/components/dashboard/NovelDashboard"
+import { useChapterStore } from "@/store/useChapterStore"
 
 export function EditorLayout() {
+    const { activeChapterId } = useChapterStore()
+
+    if (!activeChapterId) {
+        return <NovelDashboard />
+    }
+
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900 overflow-hidden flex font-sans">
-
             {/* Left Sidebar */}
             <div className="z-10 flex-shrink-0 relative">
                 <Sidebar />

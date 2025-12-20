@@ -8,8 +8,7 @@ import CharacterCount from '@tiptap/extension-character-count'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
-import { IndentParagraph } from './IndentParagraph'
-import { LoreNode } from './LoreNode'
+import { TabExtension } from './TabExtension'
 import { cn } from '@/lib/utils'
 import { useChapterStore } from '@/store/useChapterStore'
 import { useNovelStore } from '@/store/useNovelStore'
@@ -53,6 +52,7 @@ export function Editor() {
                 paragraph: false,
             }),
             IndentParagraph,
+            TabExtension,
             LoreNode,
             Placeholder.configure({
                 placeholder: '開始你的創作...',
@@ -73,7 +73,8 @@ export function Editor() {
                     'prose prose-lg prose-slate dark:prose-invert max-w-none focus:outline-none',
                     'min-h-[500px] px-8 py-4',
                     'font-serif text-lg leading-relaxed tracking-wide',
-                    'selection:bg-yellow-200 selection:text-black'
+                    'selection:bg-yellow-200 selection:text-black',
+                    'whitespace-pre-wrap'
                 ),
             },
         },

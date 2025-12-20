@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { BookOpen, GripVertical, Plus, Settings, Save, Upload, Calendar, Trash2 } from "lucide-react"
+import { BookOpen, GripVertical, Plus, Settings, Save, Upload, Calendar, Trash2, ChevronLeft } from "lucide-react"
 import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { toast } from "sonner"
@@ -23,6 +23,10 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { cn } from "@/lib/utils"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useState } from "react"
 
 function SortableChapterItem({ chapter, isActive, onClick, onDelete }: { chapter: any, isActive: boolean, onClick: () => void, onDelete: () => void }) {
     const {
@@ -74,7 +78,7 @@ function SortableChapterItem({ chapter, isActive, onClick, onDelete }: { chapter
             <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-1 opacity-0 group-hover:opacity-100 h-6 w-6 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                className="absolute right-1 opacity-0 group-hover:opacity-100 h-6 w-6 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 z-10"
                 onClick={(e) => {
                     e.stopPropagation()
                     onDelete()
@@ -86,9 +90,48 @@ function SortableChapterItem({ chapter, isActive, onClick, onDelete }: { chapter
     )
 }
 
+function NovelSettingsDialog({ open, onOpenChange, novel, onUpdate }: { open: boolean, onOpenChange: (open: boolean) => void, novel: any, onUpdate: (data: any) => void }) {
+    const [title, setTitle] = useState(novel?.title || '')
+    const [author, setAuthor] = useState(novel?.author || '')
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>小說設定</DialogTitle>
+                    <DialogDescription>
+                        編輯小說的基本資訊
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="title" className="text-right">
+                            標題
+                        </Label>
+                        <Input
+                            id="title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="col-span-3"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button onClick={() => {
+                        onUpdate({ title })
+                        onOpenChange(false)
+                        toast.success('設定已更新')
+                    }}>儲存變更</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export function Sidebar() {
     const { chapters, activeChapterId, setActiveChapter, reorderChapters, addChapter, deleteChapter } = useChapterStore()
-    const { novels, selectedNovelId } = useNovelStore()
+    const { novels, selectedNovelId, updateNovel } = useNovelStore()
+    const [settingsOpen, setSettingsOpen] = useState(false)
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)
     const novelTitle = activeNovel?.title || "未命名小說"
@@ -109,7 +152,6 @@ export function Sidebar() {
     }
 
     const handleAction = (action: string) => {
-        // Implement logic here if needed, currently simulated
         toast.success(`${action} 成功`, {
             description: "功能已模擬執行 (功能開發中)",
             duration: 2000
@@ -120,23 +162,49 @@ export function Sidebar() {
         <div className="w-64 h-screen sticky top-0 flex flex-col border-r border-neutral-200 dark:border-neutral-800 bg-[#FDFBF7] dark:bg-neutral-900 overflow-hidden">
 
             {/* Liquid Glass Header */}
-            <div className="relative p-6 overflow-hidden">
-                {/* Background Blobs for Liquid Effect */}
-                <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-to-br from-indigo-200/40 via-purple-200/40 to-pink-200/40 blur-3xl rounded-full animate-pulse pointer-events-none" />
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-sm" />
+            <div className="relative overflow-hidden group">
+                {/* Stronger Blurred Background Image or Gradient for Liquid Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-900/20 dark:to-purple-900/20 blur-xl" />
 
-                <div className="relative z-10 flex flex-col gap-1">
-                    <div className="flex items-start justify-between">
-                        <h1 className="text-xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2">
-                            #{novelTitle}
-                        </h1>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-500 hover:text-slate-800 -mr-2 -mt-1">
-                            <Settings className="w-4 h-4" />
+                {/* The "Glass" Layer */}
+                <div className="relative z-10 p-6 bg-white/30 dark:bg-black/20 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm transition-all">
+
+                    <div className="flex flex-col gap-3">
+                        {/* Return to Novel Button */}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="-ml-3 w-fit text-slate-500 hover:text-slate-900 hover:bg-white/40 text-xs uppercase tracking-wider font-bold"
+                            onClick={() => setActiveChapter('')} // Clearing ID to trigger Dashboard
+                        >
+                            <ChevronLeft className="w-3 h-3 mr-1" />
+                            Back to Novel
                         </Button>
+
+                        <div className="flex items-start justify-between gap-2">
+                            <h1 className="text-xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                                #{novelTitle}
+                            </h1>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-slate-500 hover:text-slate-800 hover:bg-white/40 dark:hover:bg-black/40 rounded-full transition-all shrink-0 -mr-2 -mt-2 active:scale-95"
+                                onClick={() => setSettingsOpen(true)}
+                            >
+                                <Settings className="w-4 h-4" />
+                            </Button>
+                        </div>
                     </div>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Novel Settings</span>
                 </div>
             </div>
+
+            <NovelSettingsDialog
+                open={settingsOpen}
+                onOpenChange={setSettingsOpen}
+                novel={activeNovel}
+                onUpdate={(data) => activeNovel && updateNovel(activeNovel.id, data)}
+            />
 
             {/* Action Buttons */}
             <div className="p-4 space-y-3 relative z-10">

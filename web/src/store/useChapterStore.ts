@@ -25,7 +25,7 @@ export const useChapterStore = create<ChapterStore>((set) => ({
         { id: '2', title: '第二章：意外的訪客', order: 1 },
         { id: '3', title: '第三章：覺醒', order: 2 },
     ],
-    activeChapterId: '1',
+    activeChapterId: null,
     setChapters: (chapters) => set({ chapters }),
     addChapter: () =>
         set((state) => {
