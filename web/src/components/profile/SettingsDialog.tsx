@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 
 export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
-    const { user, signOut } = useAuthStore()
+    const { user, signOut, checkUser } = useAuthStore()
     const [activeTab, setActiveTab] = useState('profile')
     const [isLoading, setIsLoading] = useState(false)
 
@@ -37,11 +37,8 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                 }
             })
             if (error) throw error
-            // Ideally we should re-fetch user or update local store here, 
-            // but for now supabase onAuthStateChange might catch it or a reload is needed.
-            // A simple way is to reload the window or wait for store update if wired.
-            // Since we use the store user object directly, we might need to force a refresh if the listener doesn't fire.
-            window.location.reload() // Simple force refresh for now to reflect changes
+            // Refresh user data to update UI immediately
+            await checkUser()
         } catch (error) {
             console.error('Error updating profile:', error)
             alert('Failed to update profile')
@@ -229,8 +226,8 @@ function ThemeOption({ icon: Icon, label, isActive, onClick }: any) {
         <button
             onClick={onClick}
             className={`flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all ${isActive
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
-                    : 'border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 text-zinc-500'
+                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
+                : 'border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 text-zinc-500'
                 }`}
         >
             <Icon className="w-6 h-6" />
