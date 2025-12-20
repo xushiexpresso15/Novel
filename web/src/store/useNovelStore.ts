@@ -8,6 +8,7 @@ export interface Novel {
     user_id: string
     genre?: string
     is_public?: boolean
+    description?: string
 }
 
 interface NovelState {

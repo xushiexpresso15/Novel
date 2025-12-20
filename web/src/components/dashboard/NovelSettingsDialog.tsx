@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -26,6 +27,7 @@ export function NovelSettingsDialog({ open, onOpenChange, novel }: NovelSettings
     const { updateNovel } = useNovelStore()
     const [title, setTitle] = useState("")
     const [genre, setGenre] = useState("")
+    const [description, setDescription] = useState("")
     const [isPublic, setIsPublic] = useState(false)
 
     const [prevOpen, setPrevOpen] = useState(open)
@@ -37,6 +39,7 @@ export function NovelSettingsDialog({ open, onOpenChange, novel }: NovelSettings
         if (open && novel) {
             setTitle(novel.title)
             setGenre(novel.genre || "")
+            setDescription(novel.description || "")
             setIsPublic(novel.is_public || false)
         }
     }
@@ -45,10 +48,10 @@ export function NovelSettingsDialog({ open, onOpenChange, novel }: NovelSettings
         if (!novel) return
 
         try {
-            // In a real scenario we would send genre and is_public too
             await updateNovel(novel.id, {
                 title,
                 genre,
+                description,
                 is_public: isPublic
             })
             toast.success("小說設定已更新")
@@ -82,6 +85,16 @@ export function NovelSettingsDialog({ open, onOpenChange, novel }: NovelSettings
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>小說簡介</Label>
+                        <Textarea
+                            placeholder="請輸入小說簡介..."
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                            className="h-32 resize-none"
+                        />
                     </div>
 
                     <div className="flex items-center justify-between space-x-2">
