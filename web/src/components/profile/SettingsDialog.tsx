@@ -30,28 +30,48 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     const handleUpdateProfile = async () => {
         setIsLoading(true)
         try {
-            const { error } = await supabase.auth.updateUser({
+            // 1. Update Auth Metadata
+            const { error: authError } = await supabase.auth.updateUser({
                 data: {
                     full_name: fullName,
                     bio: bio,
                     website: website
                 }
             })
-            if (error) throw error
+            if (authError) throw authError
+
+            // 2. Update Public Profile Table
+            // Note: We sync 'fullName' to 'username' in profiles for public display
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({
+                    username: fullName,
+                    bio: bio,
+                    // website might not exist in profiles schema yet, keeping it safe with just bio/name
+                })
+                .eq('id', user?.id)
+
+            if (profileError) {
+                console.warn('Profile table update failed (non-fatal):', profileError)
+            }
+
             // Refresh user data to update UI immediately
             await checkUser()
+
+            // Show success feedback (optional, but good UX)
+            // alert('儲存成功！') 
         } catch (error) {
             console.error('Error updating profile:', error)
-            alert('Failed to update profile')
+            alert('更新個人資料失敗')
         } finally {
             setIsLoading(false)
         }
     }
 
     const tabs = [
-        { id: 'profile', label: 'Profile', icon: User },
-        { id: 'appearance', label: 'Appearance', icon: Palette },
-        { id: 'danger', label: 'Danger Zone', icon: ShieldAlert },
+        { id: 'profile', label: '個人資料', icon: User },
+        { id: 'appearance', label: '外觀設定', icon: Palette },
+        { id: 'danger', label: '危險區域', icon: ShieldAlert },
     ]
 
     return (
@@ -62,7 +82,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                     <div>
                         <h2 className="text-xl font-bold mb-8 px-2 flex items-center gap-2">
                             <Settings className="w-5 h-5 text-indigo-500" />
-                            Settings
+                            設定
                         </h2>
                         <nav className="space-y-1">
                             {tabs.map((tab) => {
@@ -94,7 +114,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         }}
                     >
                         <LogOut className="w-4 h-4" />
-                        Log Out
+                        登出
                     </Button>
                 </div>
 
@@ -117,35 +137,35 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                             {user?.user_metadata?.full_name?.[0] || 'U'}
                                         </div>
                                         <div>
-                                            <h4 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{user?.user_metadata?.full_name || 'User'}</h4>
+                                            <h4 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{user?.user_metadata?.full_name || '使用者'}</h4>
                                             <p className="text-zinc-500 text-sm">{user?.email}</p>
                                         </div>
                                     </div>
 
                                     <div className="space-y-5 max-w-md">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Display Name</label>
+                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">顯示名稱</label>
                                             <input
                                                 value={fullName}
                                                 onChange={(e) => setFullName(e.target.value)}
-                                                placeholder="How others see you"
+                                                placeholder="其他人將如何稱呼您"
                                                 className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 focus:ring-2 ring-indigo-500/20 outline-none transition-all font-medium placeholder:text-zinc-400"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Bio</label>
+                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">個人簡介</label>
                                             <textarea
                                                 value={bio}
                                                 onChange={(e) => setBio(e.target.value)}
-                                                placeholder="Tell us a little about yourself..."
+                                                placeholder="稍微介紹一下您自己..."
                                                 rows={3}
                                                 className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 focus:ring-2 ring-indigo-500/20 outline-none transition-all font-medium placeholder:text-zinc-400 resize-none"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Website</label>
+                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">個人網站</label>
                                             <input
                                                 value={website}
                                                 onChange={(e) => setWebsite(e.target.value)}
@@ -160,7 +180,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                                 disabled={isLoading}
                                                 className="rounded-xl px-6 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
                                             >
-                                                {isLoading ? 'Saving...' : 'Save Changes'}
+                                                {isLoading ? '儲存中...' : '儲存變更'}
                                             </Button>
                                         </div>
                                     </div>
@@ -169,26 +189,26 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
 
                             {activeTab === 'appearance' && (
                                 <div className="space-y-8">
-                                    <h3 className="text-2xl font-bold">Appearance</h3>
+                                    <h3 className="text-2xl font-bold">外觀設定</h3>
 
                                     <div className="space-y-4">
-                                        <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Editor Theme</label>
+                                        <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">編輯器主題</label>
                                         <div className="grid grid-cols-3 gap-4 max-w-lg">
                                             <ThemeOption
                                                 icon={Sun}
-                                                label="Light"
+                                                label="淺色"
                                                 isActive={false}
                                                 onClick={() => { }}
                                             />
                                             <ThemeOption
                                                 icon={Moon}
-                                                label="Dark"
+                                                label="深色"
                                                 isActive={false}
                                                 onClick={() => { }}
                                             />
                                             <ThemeOption
                                                 icon={Laptop}
-                                                label="System"
+                                                label="系統"
                                                 isActive={true}
                                                 onClick={() => { }}
                                             />
@@ -196,34 +216,34 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                     </div>
 
                                     <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm">
-                                        <p>More detailed customization options for the editor interface will be available in a future update.</p>
+                                        <p>更多關於編輯器介面的客製化選項將在未來的更新中推出。</p>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'danger' && (
                                 <div className="space-y-6">
-                                    <h3 className="text-2xl font-bold text-red-500">Danger Zone</h3>
+                                    <h3 className="text-2xl font-bold text-red-500">危險區域</h3>
                                     {!isDeleteConfirm ? (
                                         <div className="p-6 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20">
-                                            <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">Delete Account</h4>
+                                            <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">刪除帳號</h4>
                                             <p className="text-sm text-red-600/70 mb-4 leading-relaxed">
-                                                Once you delete your account, there is no going back. Please be certain.
-                                                All your novels will be permanently deleted.
+                                                一旦刪除帳號，將無法恢復。請務必確認。
+                                                您的所有小說將永久刪除。
                                             </p>
                                             <Button
                                                 variant="destructive"
                                                 onClick={() => setIsDeleteConfirm(true)}
                                             >
-                                                Delete Account
+                                                刪除帳號
                                             </Button>
                                         </div>
                                     ) : (
                                         <div className="p-6 rounded-2xl border border-red-500 bg-red-100 dark:bg-red-900/40 animate-in fade-in zoom-in-95 duration-200">
-                                            <h4 className="font-bold text-red-800 dark:text-red-200 mb-4 text-lg">Are you absolutely sure?</h4>
+                                            <h4 className="font-bold text-red-800 dark:text-red-200 mb-4 text-lg">您確定嗎？</h4>
                                             <p className="text-sm text-red-800/80 dark:text-red-200/80 mb-6">
-                                                This action cannot be undone. This will permanently delete your account
-                                                and remove all your data from our servers.
+                                                此操作無法復原。這將永久刪除您的帳號
+                                                並從我們的伺服器中刪除您的所有資料。
                                             </p>
                                             <div className="flex gap-3">
                                                 <Button
@@ -231,7 +251,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                                     className="flex-1 bg-white dark:bg-black border-red-200 dark:border-red-800"
                                                     onClick={() => setIsDeleteConfirm(false)}
                                                 >
-                                                    Cancel
+                                                    取消
                                                 </Button>
                                                 <Button
                                                     variant="destructive"
@@ -246,13 +266,13 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                                             onOpenChange(false)
                                                         } catch (error: any) {
                                                             console.error('Delete account error:', error)
-                                                            alert(`Failed to delete account: ${error.message || error.toString()}`)
+                                                            alert(`刪除帳號失敗: ${error.message || error.toString()}`)
                                                         } finally {
                                                             setIsLoading(false)
                                                         }
                                                     }}
                                                 >
-                                                    {isLoading ? 'Deleting...' : 'Yes, Delete Everything'}
+                                                    {isLoading ? '刪除中...' : '是的，刪除一切'}
                                                 </Button>
                                             </div>
                                         </div>
