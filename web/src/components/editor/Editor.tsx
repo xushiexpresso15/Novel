@@ -130,7 +130,7 @@ export function Editor() {
                             onChange={(e) => activeNovel && updateNovel(activeNovel.id, { title: e.target.value })}
                         />
                         {/* Chapter Title */}
-                        <span className="text-muted-foreground text-xl font-medium mt-1"># {String(activeChapter?.order ? activeChapter.order + 1 : 1)}</span>
+                        <span className="text-muted-foreground text-xl font-medium mt-1"># {String(activeChapter?.order ?? 0)}</span>
                         <input
                             type="text"
                             className="w-full text-6xl font-black text-neutral-800 dark:text-neutral-200 border-none bg-transparent outline-none placeholder:text-neutral-300 placeholder:font-bold"

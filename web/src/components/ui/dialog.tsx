@@ -3,6 +3,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -20,14 +21,29 @@ const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <DialogPrimitive.Overlay
         ref={ref}
-        className={cn(
-            "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            className
-        )}
-        {...props}
-    />
+        asChild
+    >
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={cn(
+                "fixed inset-0 z-50 bg-black/80",
+                className
+            )}
+            {...props as any}
+        />
+    </DialogPrimitive.Overlay>
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
+
+// Track last click position for dynamic origin
+let lastClickPosition = { x: 0, y: 0 }
+if (typeof window !== "undefined") {
+    window.addEventListener("click", (e) => {
+        lastClickPosition = { x: e.clientX, y: e.clientY }
+    }, true)
+}
 
 const DialogContent = React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Content>,
@@ -37,17 +53,43 @@ const DialogContent = React.forwardRef<
         <DialogOverlay />
         <DialogPrimitive.Content
             ref={ref}
-            className={cn(
-                "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-                className
-            )}
-            {...props}
+            asChild
         >
-            {children}
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-            </DialogPrimitive.Close>
+            <motion.div
+                initial={() => {
+                    // Calculate offset from center
+                    const x = lastClickPosition.x - window.innerWidth / 2
+                    const y = lastClickPosition.y - window.innerHeight / 2
+                    return { opacity: 0, scale: 0.1, x, y }
+                }}
+                animate={{
+                    opacity: 1,
+                    scale: 1,
+                    x: 0,
+                    y: 0,
+                    transition: {
+                        type: "spring",
+                        damping: 20,
+                        stiffness: 300,
+                        mass: 0.8
+                    }
+                }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
+                className={cn(
+                    "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
+                    className
+                )}
+                {...props as any}
+            >
+                {/* Ensure centering works despite motion transforms */}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} className="pointer-events-none" />
+
+                {children}
+                <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                </DialogPrimitive.Close>
+            </motion.div>
         </DialogPrimitive.Content>
     </DialogPortal>
 ))
