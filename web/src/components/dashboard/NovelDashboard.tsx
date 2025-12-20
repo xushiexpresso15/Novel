@@ -104,12 +104,31 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: any, onClick: ()
     )
 }
 
+import { useEffect } from "react"
+import { toast } from "sonner"
+
+// ... (ChapterCard component remains same)
+
 export function NovelDashboard() {
-    const { chapters, reorderChapters, addChapter, setActiveChapter, deleteChapter } = useChapterStore()
+    const { chapters, reorderChapters, addChapter, setActiveChapter, deleteChapter, fetchChapters } = useChapterStore()
     const { novels, selectedNovelId, updateNovel } = useNovelStore()
 
     // Fallback if no novel selected (should handle better in real app)
     const activeNovel = novels.find(n => n.id === selectedNovelId) || { title: '未命名小說', id: 'default' }
+
+    useEffect(() => {
+        if (selectedNovelId) {
+            fetchChapters(selectedNovelId)
+        }
+    }, [selectedNovelId, fetchChapters])
+
+    const handleAddChapter = async () => {
+        if (!selectedNovelId) {
+            toast.error("請先選擇小說")
+            return
+        }
+        await addChapter(selectedNovelId)
+    }
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -152,7 +171,7 @@ export function NovelDashboard() {
                             <Settings className="w-4 h-4 mr-2" />
                             設定
                         </Button>
-                        <Button onClick={addChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+                        <Button onClick={handleAddChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
                             <Plus className="w-4 h-4 mr-2" />
                             新章節
                         </Button>
@@ -181,7 +200,7 @@ export function NovelDashboard() {
 
                             {/* Quick Add Card */}
                             <button
-                                onClick={addChapter}
+                                onClick={handleAddChapter}
                                 className="group flex flex-col items-center justify-center min-h-[200px] border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all"
                             >
                                 <div className="h-12 w-12 rounded-full bg-neutral-100 dark:bg-neutral-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900 flex items-center justify-center mb-4 transition-colors">

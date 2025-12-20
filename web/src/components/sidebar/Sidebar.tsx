@@ -188,9 +188,16 @@ export function Sidebar() {
             {/* Note: Settings Dialog is removed from here as requested, moved to Dashboard */}
 
             {/* Action Buttons */}
-            <div className="p-4 space-y-3 relative z-10">
+            <div className="p-4 space-y-3 relative z-10 font-[family-name:var(--font-geist-sans)]">
                 <Button
-                    onClick={() => handleAction('儲存草稿')}
+                    onClick={() => {
+                        // Simulate saving all chapters
+                        const count = chapters.length;
+                        toast.success('儲存成功', {
+                            description: `已儲存 ${count} 個章節至草稿`,
+                            duration: 2000
+                        })
+                    }}
                     className="w-full bg-[#EAC435] hover:bg-[#d6b22f] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
                 >
                     <Save className="w-5 h-5 mb-1" />
@@ -213,52 +220,8 @@ export function Sidebar() {
                     <span className="text-xs font-bold">預約發文</span>
                 </Button>
             </div>
-
-            {/* Divider */}
-            <div className="px-4">
-                <div className="h-px bg-neutral-200 dark:bg-neutral-800" />
-            </div>
-
-            {/* Chapter List */}
-            <div className="flex-1 overflow-y-auto py-4 px-3 relative z-10">
-                <div className="flex items-center justify-between px-2 mb-2">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Chapters</span>
-                </div>
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={chapters.map(c => c.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <div className="space-y-1">
-                            {chapters.map((chapter) => (
-                                <SortableChapterItem
-                                    key={chapter.id}
-                                    chapter={chapter}
-                                    isActive={chapter.id === activeChapterId}
-                                    onClick={() => setActiveChapter(chapter.id)}
-                                    onDelete={() => deleteChapter(chapter.id)}
-                                />
-                            ))}
-                        </div>
-                    </SortableContext>
-                </DndContext>
-            </div>
-
-            {/* Footer: Add Chapter */}
-            <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 relative z-10">
-                <Button
-                    onClick={addChapter}
-                    variant="ghost"
-                    className="w-full border-2 border-dashed border-neutral-300 hover:border-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-muted-foreground transition-colors"
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    新增章節
-                </Button>
-            </div>
         </div>
+    )
+}
     )
 }

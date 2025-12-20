@@ -33,3 +33,15 @@ next-env.d.ts
 
 # Deploy scripts
 deploy.bat
+
+# Database setup
+database_setup.sql
+
+# Editor config
+.vscode/
+.idea/
+
+# System files
+Thumbs.db
+Desktop.ini
+

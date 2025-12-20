@@ -1,62 +1,150 @@
 import { create } from 'zustand'
+import { supabase } from '@/lib/supabase'
+import { toast } from 'sonner'
 
 export interface Chapter {
     id: string
+    novel_id: string
     title: string
     order: number
+    content?: string
 }
 
 interface ChapterStore {
     chapters: Chapter[]
     activeChapterId: string | null
+    isLoading: boolean
     setChapters: (chapters: Chapter[]) => void
-    addChapter: () => void
-    setActiveChapter: (id: string) => void
-    reorderChapters: (activeId: string, overId: string) => void
-    updateChapter: (id: string, data: Partial<Chapter>) => void
-    deleteChapter: (id: string) => void
+    fetchChapters: (novelId: string) => Promise<void>
+    addChapter: (novelId: string) => Promise<void>
+    setActiveChapter: (id: string | null) => void
+    reorderChapters: (activeId: string, overId: string) => Promise<void>
+    updateChapter: (id: string, data: Partial<Chapter>) => Promise<void>
+    deleteChapter: (id: string) => Promise<void>
     wordCount: number
     setWordCount: (count: number) => void
 }
 
-export const useChapterStore = create<ChapterStore>((set) => ({
-    chapters: [
-        { id: '1', title: '第一章：序幕', order: 0 },
-        { id: '2', title: '第二章：意外的訪客', order: 1 },
-        { id: '3', title: '第三章：覺醒', order: 2 },
-    ],
+export const useChapterStore = create<ChapterStore>((set, get) => ({
+    chapters: [],
     activeChapterId: null,
+    isLoading: false,
+
     setChapters: (chapters) => set({ chapters }),
-    addChapter: () =>
-        set((state) => {
-            const newChapter = {
-                id: Math.random().toString(36).substr(2, 9),
-                title: '新章節',
-                order: state.chapters.length,
-            }
-            return { chapters: [...state.chapters, newChapter] }
-        }),
+
+    fetchChapters: async (novelId: string) => {
+        set({ isLoading: true })
+        const { data, error } = await supabase
+            .from('chapters')
+            .select('*')
+            .eq('novel_id', novelId)
+            .order('order', { ascending: true })
+
+        if (error) {
+            console.error('Error fetching chapters:', error)
+        } else {
+            set({ chapters: data as Chapter[] || [] })
+        }
+        set({ isLoading: false })
+    },
+
+    addChapter: async (novelId: string) => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        // Get current max order
+        const currentChapters = get().chapters
+        const maxOrder = currentChapters.length > 0
+            ? Math.max(...currentChapters.map(c => c.order))
+            : -1
+
+        const newChapter = {
+            novel_id: novelId,
+            user_id: user.id,
+            title: '新章節',
+            content: '',
+            order: maxOrder + 1
+        }
+
+        const { data, error } = await supabase
+            .from('chapters')
+            .insert([newChapter])
+            .select()
+            .single()
+
+        if (error) {
+            console.error('Error adding chapter:', error)
+            toast.error('新增章節失敗')
+        } else {
+            set((state) => ({ chapters: [...state.chapters, data as Chapter] }))
+            // Automatically select the new chapter? optional.
+        }
+    },
+
     setActiveChapter: (id) => set({ activeChapterId: id }),
-    reorderChapters: (activeId, overId) =>
-        set((state) => {
-            const oldIndex = state.chapters.findIndex((c) => c.id === activeId)
-            const newIndex = state.chapters.findIndex((c) => c.id === overId)
 
-            const newChapters = [...state.chapters]
-            const [movedChapter] = newChapters.splice(oldIndex, 1)
-            newChapters.splice(newIndex, 0, movedChapter)
+    reorderChapters: async (activeId, overId) => {
+        // Optimistic update
+        const state = get()
+        const oldIndex = state.chapters.findIndex((c) => c.id === activeId)
+        const newIndex = state.chapters.findIndex((c) => c.id === overId)
 
-            return { chapters: newChapters }
-        }),
-    updateChapter: (id, data) =>
+        if (oldIndex === -1 || newIndex === -1) return
+
+        const newChapters = [...state.chapters]
+        const [movedChapter] = newChapters.splice(oldIndex, 1)
+        newChapters.splice(newIndex, 0, movedChapter)
+
+        // Update order properties
+        const updatedChapters = newChapters.map((chapter, index) => ({
+            ...chapter,
+            order: index
+        }))
+
+        set({ chapters: updatedChapters })
+
+        // Persist to DB (Batch update ideally, or loop)
+        // For MVP, simplistic loop or RPC is okay.
+        // Let's try to update just the affected ones or all.
+        for (const chapter of updatedChapters) {
+            await supabase.from('chapters').update({ order: chapter.order }).eq('id', chapter.id)
+        }
+    },
+
+    updateChapter: async (id, data) => {
+        // Optimistic
         set((state) => ({
             chapters: state.chapters.map((c) => (c.id === id ? { ...c, ...data } : c)),
-        })),
-    deleteChapter: (id) =>
-        set((state) => ({
-            chapters: state.chapters.filter((c) => c.id !== id),
-            activeChapterId: state.activeChapterId === id ? null : state.activeChapterId
-        })),
+        }))
+
+        // Debounce could be good here for content, but direct update for now
+        const { error } = await supabase
+            .from('chapters')
+            .update(data)
+            .eq('id', id)
+
+        if (error) {
+            console.error('Error updating chapter:', error)
+        }
+    },
+
+    deleteChapter: async (id) => {
+        const { error } = await supabase
+            .from('chapters')
+            .delete()
+            .eq('id', id)
+
+        if (error) {
+            console.error('Error deleting chapter:', error)
+            toast.error('刪除失敗')
+        } else {
+            set((state) => ({
+                chapters: state.chapters.filter((c) => c.id !== id),
+                activeChapterId: state.activeChapterId === id ? null : state.activeChapterId
+            }))
+        }
+    },
+
     wordCount: 0,
     setWordCount: (count) => set({ wordCount: count }),
 }))

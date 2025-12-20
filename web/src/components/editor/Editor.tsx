@@ -82,10 +82,18 @@ export function Editor() {
             },
         },
         onCreate({ editor }) {
+            const content = editor.getHTML()
             setWordCount(countWords(editor.getText()))
+            if (activeChapterId) {
+                updateChapter(activeChapterId, { content })
+            }
         },
         onUpdate({ editor }) {
+            const content = editor.getHTML()
             setWordCount(countWords(editor.getText()))
+            if (activeChapterId) {
+                updateChapter(activeChapterId, { content })
+            }
         }
     }, [activeChapterId])
 
