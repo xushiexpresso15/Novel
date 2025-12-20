@@ -231,6 +231,10 @@ export function NovelDashboard() {
                                     預覽
                                 </Button>
                             </Link>
+                            <Button variant="outline" className="border-neutral-300 rounded-full px-6" onClick={() => setSettingsOpen(true)}>
+                                <Settings className="w-4 h-4 mr-2" />
+                                設定
+                            </Button>
                             <Button onClick={handleAddChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none rounded-full px-6">
                                 <Plus className="w-4 h-4 mr-2" />
                                 新章節
