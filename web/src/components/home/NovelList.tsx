@@ -2,7 +2,7 @@ import { useNovelStore } from "@/store/useNovelStore"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useEffect } from "react"
 import { motion } from "framer-motion"
-import { Plus, Trash2, Home, Settings, LogOut, Compass } from "lucide-react"
+import { Plus, Trash2, Home, LogOut, Compass } from "lucide-react"
 import { UserProfile } from "@/components/UserProfile"
 import { Button } from "@/components/ui/button"
 import { LiquidBackground } from "@/components/ui/LiquidBackground"
@@ -128,7 +128,36 @@ export function NovelList() {
                     ))}
                 </div>
             </main >
+
+            {/* Floating Dock Navigation (Google Style) */}
+            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+                <div className="flex items-center gap-2 p-2 bg-white/80 dark:bg-black/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-full shadow-2xl shadow-indigo-500/10">
+                    <TooltipButton icon={<Home className="w-5 h-5" />} label="首頁" onClick={() => setViewMode('landing')} />
+                    <Link href="/explore">
+                        <TooltipButton icon={<Compass className="w-5 h-5" />} label="探索" onClick={() => { }} />
+                    </Link>
+                    <div className="w-px h-8 bg-slate-200 dark:bg-slate-800 mx-2" />
+                    {/* Settings button removed as requested */}
+                    <TooltipButton icon={<LogOut className="w-5 h-5 text-red-500" />} label="登出" onClick={signOut} />
+                </div>
+            </div>
         </div >
+    )
+}
+
+function TooltipButton({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
+    return (
+        <motion.button
+            whileHover={{ scale: 1.1, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onClick}
+            className="p-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors relative group"
+        >
+            {icon}
+            <span className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-black text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                {label}
+            </span>
+        </motion.button>
     )
 }
 
