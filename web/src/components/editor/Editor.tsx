@@ -86,7 +86,6 @@ export function Editor() {
                     'selection:bg-yellow-200 selection:text-black',
                     'whitespace-pre-wrap'
                 ),
-                style: 'tab-size: 2em;',
             },
         },
         onCreate({ editor }) {
