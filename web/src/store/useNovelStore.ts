@@ -39,9 +39,17 @@ export const useNovelStore = create<NovelState>((set) => ({
         set({ isLoading: true, error: null })
         try {
             console.log('fetchNovels: fetching...')
+
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                set({ novels: [], isLoading: false })
+                return
+            }
+
             const { data, error } = await supabase
                 .from('novels')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
 
             if (error) throw error

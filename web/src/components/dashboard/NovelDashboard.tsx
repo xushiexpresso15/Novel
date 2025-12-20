@@ -219,15 +219,16 @@ export function NovelDashboard() {
                     {/* Top Bar with User & Collab */}
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 -ml-2"
-                                onClick={() => selectNovel(null)}
-                            >
-                                <ChevronLeft className="w-4 h-4 mr-1" />
-                                返回列表
-                            </Button>
+                            <Link href="/">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 -ml-2"
+                                >
+                                    <ChevronLeft className="w-4 h-4 mr-1" />
+                                    返回列表
+                                </Button>
+                            </Link>
                             <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold tracking-wide uppercase">
                                 當前專案
                             </div>
@@ -296,12 +297,7 @@ export function NovelDashboard() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
-                            <Link href={`/novel?id=${activeNovel.id}`} target="_blank">
-                                <Button variant="outline" className="border-neutral-300 rounded-full px-6 w-full sm:w-auto" >
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    預覽
-                                </Button>
-                            </Link>
+
                             <Button variant="outline" className="border-neutral-300 rounded-full px-6 w-full sm:w-auto" onClick={() => setSettingsOpen(true)}>
                                 <Settings className="w-4 h-4 mr-2" />
                                 設定

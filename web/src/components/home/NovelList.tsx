@@ -71,58 +71,63 @@ export function NovelList() {
 
                     {/* Novel Cards */}
                     {novels.map((novel, index) => (
-                        <motion.div
+                        <Link
                             key={novel.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            whileHover={{ y: -10 }}
-                            layoutId={novel.id}
-                            className="group relative aspect-[3/4] rounded-3xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl hover:shadow-2xl hover:shadow-indigo-500/20 transition-all overflow-hidden cursor-pointer"
-                            onClick={() => selectNovel(novel.id)}
+                            href={`/novel?id=${novel.id}`}
+                            className="block"
                         >
-                            {/* Cover Image or Gradient */}
-                            {novel.cover_url ? (
-                                <div className="h-3/5 w-full relative overflow-hidden group-hover:opacity-100 transition-opacity">
-                                    <img
-                                        src={novel.cover_url}
-                                        alt={novel.title}
-                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-                                </div>
-                            ) : (
-                                <div className={`h-3/5 w-full bg-gradient-to-br ${getGradient(index)} opacity-80 group-hover:opacity-100 transition-opacity`} />
-                            )}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: index * 0.1 }}
+                                whileHover={{ y: -10 }}
+                                layoutId={novel.id}
+                                className="group relative aspect-[3/4] rounded-3xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl hover:shadow-2xl hover:shadow-indigo-500/20 transition-all overflow-hidden cursor-pointer"
+                            >
+                                {/* Cover Image or Gradient */}
+                                {novel.cover_url ? (
+                                    <div className="h-3/5 w-full relative overflow-hidden group-hover:opacity-100 transition-opacity">
+                                        <img
+                                            src={novel.cover_url}
+                                            alt={novel.title}
+                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                                    </div>
+                                ) : (
+                                    <div className={`h-3/5 w-full bg-gradient-to-br ${getGradient(index)} opacity-80 group-hover:opacity-100 transition-opacity`} />
+                                )}
 
-                            <div className="p-6 flex flex-col justify-between h-2/5 relative z-10 glass-content bg-white/50 dark:bg-black/50 backdrop-blur-md">
-                                <div>
-                                    <h3 className="font-bold text-xl leading-tight line-clamp-2 mb-2 text-slate-800 dark:text-slate-100">{novel.title}</h3>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">
-                                        {new Date(novel.created_at).toLocaleDateString()}
-                                    </p>
+                                <div className="p-6 flex flex-col justify-between h-2/5 relative z-10 glass-content bg-white/50 dark:bg-black/50 backdrop-blur-md">
+                                    <div>
+                                        <h3 className="font-bold text-xl leading-tight line-clamp-2 mb-2 text-slate-800 dark:text-slate-100">{novel.title}</h3>
+                                        <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">
+                                            {new Date(novel.created_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                    <div className="absolute top-[-20px] right-4 bg-white dark:bg-slate-900 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-red-500 hover:bg-red-50 rounded-full"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                if (confirm('確定要刪除這本小說嗎？')) deleteNovel(novel.id)
+                                            }}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="absolute top-[-20px] right-4 bg-white dark:bg-slate-900 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-red-500 hover:bg-red-50 rounded-full"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            if (confirm('確定要刪除這本小說嗎？')) deleteNovel(novel.id)
-                                        }}
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </motion.div>
+
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
-            </main>
+            </main >
 
             {/* Floating Dock Navigation (Google Style) */}
-            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+            < div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50" >
                 <div className="flex items-center gap-2 p-2 bg-white/80 dark:bg-black/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-full shadow-2xl shadow-indigo-500/10">
                     <TooltipButton icon={<Home className="w-5 h-5" />} label="首頁" onClick={() => setViewMode('landing')} />
                     <Link href="/explore">
@@ -132,8 +137,8 @@ export function NovelList() {
                     <TooltipButton icon={<Settings className="w-5 h-5" />} label="設定" onClick={() => alert('Settings coming soon!')} />
                     <TooltipButton icon={<LogOut className="w-5 h-5 text-red-500" />} label="登出" onClick={signOut} />
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
 
