@@ -7,9 +7,11 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen, Clock, List } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useParams } from 'next/navigation' // Add import
 
-export default function NovelLandingPage({ params }: { params: { novelId: string } }) {
-    const { novelId } = params
+export default function NovelLandingPage() { // Remove props
+    const params = useParams()
+    const novelId = params?.novelId as string
     const { currentNovel, currentChapters, fetchNovelDetails, fetchPublicChapters, isLoading } = usePublicStore()
 
     useEffect(() => {

@@ -8,9 +8,11 @@ import { BookOpen, User, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useParams } from 'next/navigation' // Add import
 
-export default function ProfilePage({ params }: { params: { userId: string } }) {
-    const { userId } = params
+export default function ProfilePage() { // Remove props
+    const params = useParams()
+    const userId = params?.userId as string
     const { currentProfile, publicNovels, fetchProfile, fetchPublicNovels, isLoading } = usePublicStore()
 
     useEffect(() => {

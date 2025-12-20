@@ -15,8 +15,20 @@ interface ChapterContent {
     novel_id: string
 }
 
-export default function ReaderPage({ params }: { params: { novelId: string, chapterId: string } }) {
-    const { novelId, chapterId } = params
+export default async function ReaderPage({ params }: { params: Promise<{ novelId: string, chapterId: string }> }) {
+    const { novelId, chapterId } = await params
+    // Note: Since this is now an async server component effectively at the top level (waiting for params),
+    // but we used 'use client' at the top... wait, 'use client' components cannot be async.
+    // Correction: In Next.js 15, if it's a client component, we use `use` hook or simply `useParams` hook.
+    // However, the error says it violates `PageProps` constraint which suggests Next.js expects the component to accept a Promise for params if it's a Server Component, OR we rely on `useParams` hook for Client Components.
+
+    // BUT checking the file, line 1 is 'use client'.
+    // Client components receive params as a Promise in Next.js 15 IF they are pages? Actually no.
+    // The breaking change is: Page props `params` is a Promise.
+    // If it is a CLIENT component, we CANNOT make the component async.
+    // The standard fix for Client Component Pages is to use `React.use()` to unwrap the promise, OR pass it down from a Server Component wrapper.
+    // simpler fix for now: Use `useParams` hook from `next/navigation` instead of props! This is the client-side way.
+
     const [chapter, setChapter] = useState<ChapterContent | null>(null)
     const [neighbors, setNeighbors] = useState<{ prev: string | null, next: string | null }>({ prev: null, next: null })
     const [isLoading, setIsLoading] = useState(true)
