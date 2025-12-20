@@ -1,15 +1,54 @@
 'use client'
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { useAuthStore } from "@/store/useAuthStore"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, Settings, Palette, ShieldAlert, LogOut, X } from "lucide-react"
-import { useState } from "react"
+import { User, Settings, Palette, ShieldAlert, LogOut, Check, Laptop, Moon, Sun } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { supabase } from "@/lib/supabase"
 
 export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const { user, signOut } = useAuthStore()
     const [activeTab, setActiveTab] = useState('profile')
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Profile State
+    const [fullName, setFullName] = useState('')
+    const [bio, setBio] = useState('')
+    const [website, setWebsite] = useState('')
+
+    useEffect(() => {
+        if (user) {
+            setFullName(user.user_metadata?.full_name || '')
+            setBio(user.user_metadata?.bio || '')
+            setWebsite(user.user_metadata?.website || '')
+        }
+    }, [user, open])
+
+    const handleUpdateProfile = async () => {
+        setIsLoading(true)
+        try {
+            const { error } = await supabase.auth.updateUser({
+                data: {
+                    full_name: fullName,
+                    bio: bio,
+                    website: website
+                }
+            })
+            if (error) throw error
+            // Ideally we should re-fetch user or update local store here, 
+            // but for now supabase onAuthStateChange might catch it or a reload is needed.
+            // A simple way is to reload the window or wait for store update if wired.
+            // Since we use the store user object directly, we might need to force a refresh if the listener doesn't fire.
+            window.location.reload() // Simple force refresh for now to reflect changes
+        } catch (error) {
+            console.error('Error updating profile:', error)
+            alert('Failed to update profile')
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     const tabs = [
         { id: 'profile', label: 'Profile', icon: User },
@@ -36,8 +75,8 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${isActive
-                                                ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm'
-                                                : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-200'
+                                            ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                                            : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-200'
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />
@@ -62,10 +101,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 p-8 bg-white/40 dark:bg-transparent relative">
-                    <button onClick={() => onOpenChange(false)} className="absolute top-6 right-6 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-                        <X className="w-4 h-4 text-zinc-400" />
-                    </button>
+                <div className="flex-1 p-8 bg-white/40 dark:bg-transparent relative overflow-y-auto">
 
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -77,35 +113,93 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                             className="h-full"
                         >
                             {activeTab === 'profile' && (
-                                <div className="space-y-6">
-                                    <h3 className="text-2xl font-bold">Profile</h3>
+                                <div className="space-y-8">
                                     <div className="flex items-center gap-6">
-                                        <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-4xl font-bold text-zinc-300">
+                                        <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-4xl font-bold text-zinc-300 shadow-inner">
                                             {user?.user_metadata?.full_name?.[0] || 'U'}
                                         </div>
                                         <div>
-                                            <h4 className="text-lg font-medium">{user?.user_metadata?.full_name || 'User'}</h4>
-                                            <p className="text-zinc-500">{user?.email}</p>
+                                            <h4 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{user?.user_metadata?.full_name || 'User'}</h4>
+                                            <p className="text-zinc-500 text-sm">{user?.email}</p>
                                         </div>
                                     </div>
 
-                                    <div className="grid gap-4 max-w-md">
+                                    <div className="space-y-5 max-w-md">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-zinc-500">Display Name</label>
+                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Display Name</label>
                                             <input
-                                                disabled
-                                                value={user?.user_metadata?.full_name}
-                                                className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-black/20 border-none outline-none focus:ring-2 ring-indigo-500/20 transition-all font-medium"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                placeholder="How others see you"
+                                                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 focus:ring-2 ring-indigo-500/20 outline-none transition-all font-medium placeholder:text-zinc-400"
                                             />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Bio</label>
+                                            <textarea
+                                                value={bio}
+                                                onChange={(e) => setBio(e.target.value)}
+                                                placeholder="Tell us a little about yourself..."
+                                                rows={3}
+                                                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 focus:ring-2 ring-indigo-500/20 outline-none transition-all font-medium placeholder:text-zinc-400 resize-none"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Website</label>
+                                            <input
+                                                value={website}
+                                                onChange={(e) => setWebsite(e.target.value)}
+                                                placeholder="https://your-site.com"
+                                                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 focus:ring-2 ring-indigo-500/20 outline-none transition-all font-medium placeholder:text-zinc-400"
+                                            />
+                                        </div>
+
+                                        <div className="pt-4">
+                                            <Button
+                                                onClick={handleUpdateProfile}
+                                                disabled={isLoading}
+                                                className="rounded-xl px-6 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
+                                            >
+                                                {isLoading ? 'Saving...' : 'Save Changes'}
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'appearance' && (
-                                <div className="space-y-6">
+                                <div className="space-y-8">
                                     <h3 className="text-2xl font-bold">Appearance</h3>
-                                    <p className="text-zinc-500">Theme settings coming soon (controlled by System for now).</p>
+
+                                    <div className="space-y-4">
+                                        <label className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 ml-1">Editor Theme</label>
+                                        <div className="grid grid-cols-3 gap-4 max-w-lg">
+                                            <ThemeOption
+                                                icon={Sun}
+                                                label="Light"
+                                                isActive={false}
+                                                onClick={() => { }}
+                                            />
+                                            <ThemeOption
+                                                icon={Moon}
+                                                label="Dark"
+                                                isActive={false}
+                                                onClick={() => { }}
+                                            />
+                                            <ThemeOption
+                                                icon={Laptop}
+                                                label="System"
+                                                isActive={true}
+                                                onClick={() => { }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm">
+                                        <p>More detailed customization options for the editor interface will be available in a future update.</p>
+                                    </div>
                                 </div>
                             )}
 
@@ -127,5 +221,20 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                 </div>
             </DialogContent>
         </Dialog>
+    )
+}
+
+function ThemeOption({ icon: Icon, label, isActive, onClick }: any) {
+    return (
+        <button
+            onClick={onClick}
+            className={`flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all ${isActive
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
+                    : 'border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-white/5 text-zinc-500'
+                }`}
+        >
+            <Icon className="w-6 h-6" />
+            <span className="font-medium text-sm">{label}</span>
+        </button>
     )
 }
