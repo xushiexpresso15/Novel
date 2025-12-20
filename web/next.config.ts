@@ -3,7 +3,8 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   output: 'export',
-  // basePath: '/Novel', // Keep commented unless user explicitly asks, or if we know repo name.
+  // GitHub Pages usually requires a basePath if not using a custom domain.
+  basePath: '/Novel',
   images: {
     unoptimized: true,
   },
