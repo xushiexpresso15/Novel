@@ -244,9 +244,9 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                                             if (error) throw error
                                                             await signOut()
                                                             onOpenChange(false)
-                                                        } catch (error) {
+                                                        } catch (error: any) {
                                                             console.error('Delete account error:', error)
-                                                            alert('Failed to delete account. Script enable_delete_account.sql required.')
+                                                            alert(`Failed to delete account: ${error.message || error.toString()}`)
                                                         } finally {
                                                             setIsLoading(false)
                                                         }
