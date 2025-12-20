@@ -53,14 +53,14 @@ export function Sidebar() {
             <div className="p-4 space-y-3 relative z-10 font-[family-name:var(--font-geist-sans)]">
                 <Button
                     onClick={() => {
-                        // Simulate saving all chapters
-                        const count = chapters.length;
+                        // Autosave is handled by the editor, this is just visual feedback or triggering a final save if we had a manual method
                         toast.success('儲存成功', {
-                            description: `已儲存 ${count} 個章節至草稿`,
+                            description: `章節已儲存為草稿`,
                             duration: 2000
                         })
-                        // Navigate back to chapter list
-                        setActiveChapter(null)
+                        // Optional: Go back to dashboard? Or stay? 
+                        // User might want to keep writing. If they want to leave, they use the back chevron.
+                        // Let's NOT clear active chapter here, so they can keep writing.
                     }}
                     className="w-full bg-[#EAC435] hover:bg-[#d6b22f] text-white shadow-md transition-all flex flex-col h-auto py-3 items-center gap-1 active:scale-95"
                 >

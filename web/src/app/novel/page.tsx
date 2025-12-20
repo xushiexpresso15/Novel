@@ -26,17 +26,25 @@ function NovelPageContent() {
         }
     }, [user, authLoading, novels.length, fetchNovels, router])
 
-    // 2. Select Novel based on URL
+    // 2. Select Novel based on URL & Reset Chapter State
     useEffect(() => {
-        if (id && novels.length > 0) {
-            const exists = novels.find(n => n.id === id)
-            if (exists) {
-                if (selectedNovelId !== id) {
-                    selectNovel(id)
+        if (id) {
+            // Reset chapter state when switching novels to prevent data bleeding
+            const { setActiveChapter, setChapters } = require('@/store/useChapterStore').useChapterStore.getState()
+
+            if (novels.length > 0) {
+                const exists = novels.find(n => n.id === id)
+                if (exists) {
+                    if (selectedNovelId !== id) {
+                        selectNovel(id)
+                        // Clear active chapter and chapters list to ensure fresh state
+                        setActiveChapter(null)
+                        setChapters([])
+                    }
+                } else if (!isLoading) {
+                    // Novel found in URL but not in user's list -> 404 or redirect
+                    // router.push('/') 
                 }
-            } else if (!isLoading) {
-                // Novel found in URL but not in user's list -> 404 or redirect
-                // router.push('/') 
             }
         }
     }, [id, novels, selectedNovelId, selectNovel, isLoading, router])
