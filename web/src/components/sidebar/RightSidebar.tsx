@@ -7,57 +7,49 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useLoreStore, LoreItem, LoreType } from "@/store/useLoreStore"
 import { useChapterStore } from "@/store/useChapterStore"
+import { useNovelStore } from "@/store/useNovelStore"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
 function LoreCard({ item, onDelete, onEdit }: { item: LoreItem, onDelete: () => void, onEdit: () => void }) {
     return (
-        <TooltipProvider>
-            <Tooltip delayDuration={300}>
-                <TooltipTrigger asChild>
-                    <div
-                        className="group bg-white dark:bg-neutral-800 p-3 rounded-lg border border-neutral-100 dark:border-neutral-700 hover:border-indigo-500/50 cursor-pointer transition-all relative"
-                        onDoubleClick={onEdit}
-                    >
-                        <div className="flex items-start justify-between mb-1">
-                            <h4 className="font-bold text-sm text-neutral-800 dark:text-neutral-200">{item.title}</h4>
-                            <span className="text-[10px] uppercase tracking-wider text-neutral-400 bg-neutral-100 dark:bg-neutral-900 px-1.5 py-0.5 rounded">
-                                {item.type}
-                            </span>
-                        </div>
-                        <p className="text-xs text-neutral-500 line-clamp-2 leading-relaxed">
-                            {item.description}
-                        </p>
+        <div
+            className="group bg-white dark:bg-neutral-800 p-3 rounded-lg border border-neutral-100 dark:border-neutral-700 hover:border-indigo-500/50 cursor-pointer transition-all relative"
+            onClick={onEdit}
+        >
+            <div className="flex items-start justify-between mb-1">
+                <h4 className="font-bold text-sm text-neutral-800 dark:text-neutral-200">{item.title}</h4>
+                <span className="text-[10px] uppercase tracking-wider text-neutral-400 bg-neutral-100 dark:bg-neutral-900 px-1.5 py-0.5 rounded">
+                    {item.type}
+                </span>
+            </div>
+            {/* Hover expand effect: default line-clamp-2, hover:line-clamp-none */}
+            <div className="relative">
+                <p className="text-xs text-neutral-500 line-clamp-2 group-hover:line-clamp-none leading-relaxed transition-all duration-300">
+                    {item.description}
+                </p>
+            </div>
 
-                        {/* Actions */}
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white dark:bg-neutral-800 shadow-sm rounded-md p-0.5">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 text-red-400 hover:text-red-600 hover:bg-red-50"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDelete()
-                                }}
-                            >
-                                <Trash2 className="w-3 h-3" />
-                            </Button>
-                        </div>
-                    </div>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-[300px] p-4 bg-white dark:bg-neutral-900 border-neutral-200 shadow-xl">
-                    <h4 className="font-bold mb-2">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
-                    <p className="text-xs text-indigo-400 mt-2 italic">雙擊卡片以編輯</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+            {/* Actions */}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white dark:bg-neutral-800 shadow-sm rounded-md p-0.5">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-red-400 hover:text-red-600 hover:bg-red-50"
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onDelete()
+                    }}
+                >
+                    <Trash2 className="w-3 h-3" />
+                </Button>
+            </div>
+        </div>
     )
 }
 
@@ -76,14 +68,24 @@ function AddOrEditLoreDialog({
     const [type, setType] = useState<LoreType>(editingItem?.type || "character")
     const [description, setDescription] = useState(editingItem?.description || "")
 
-    // Reset form when opening for new item
-    if (open && !editingItem && title !== "" && !title) {
-        // This logic is tricky in functional render, better use useEffect inside or key reset
+    // State for tracking props changes
+    const [prevOpen, setPrevOpen] = useState(open)
+    const [prevItem, setPrevItem] = useState(editingItem)
+
+    // Sync state when props change (Render-time check to avoid useEffect cascade)
+    if (open !== prevOpen || editingItem !== prevItem) {
+        setPrevOpen(open)
+        setPrevItem(editingItem)
+        if (open) {
+            setTitle(editingItem?.title || "")
+            setType(editingItem?.type || "character")
+            setDescription(editingItem?.description || "")
+        }
     }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{editingItem ? '編輯資料' : '新增資料'}</DialogTitle>
                 </DialogHeader>
@@ -123,19 +125,12 @@ function AddOrEditLoreDialog({
                     <Button onClick={() => {
                         onSave({ title, type, description })
                         onOpenChange(false)
-                        // Reset manually if needed or rely on parent key
-                        if (!editingItem) {
-                            setTitle("")
-                            setDescription("")
-                        }
                     }}>儲存</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     )
 }
-
-import { useNovelStore } from "@/store/useNovelStore"
 
 export function RightSidebar() {
     const { items, addItem, removeItem, updateItem, fetchItems } = useLoreStore()
