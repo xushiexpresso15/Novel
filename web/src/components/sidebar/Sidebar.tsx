@@ -7,7 +7,7 @@ import { useNovelStore } from "@/store/useNovelStore"
 import { toast } from "sonner"
 
 export function Sidebar() {
-    const { chapters, setActiveChapter, activeChapterId } = useChapterStore()
+    const { chapters, setActiveChapter } = useChapterStore()
     const { novels, selectedNovelId } = useNovelStore()
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)

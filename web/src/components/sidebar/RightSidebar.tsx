@@ -267,8 +267,8 @@ export function RightSidebar() {
                         </TabsList>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto min-h-0 bg-neutral-50/50 dark:bg-neutral-900/50 p-4">
-                        <TabsContent value="ai" className="h-full mt-0">
+                    <div className="flex-1 overflow-hidden min-h-0 bg-neutral-50/50 dark:bg-neutral-900/50 p-4">
+                        <TabsContent value="ai" className="h-full mt-0 flex flex-col">
                             <div className="flex flex-col h-full">
                                 <ScrollArea className="flex-1 pr-4">
                                     <div className="space-y-4">
@@ -302,8 +302,8 @@ export function RightSidebar() {
                         </TabsContent>
 
                         {['character', 'location', 'item'].map(type => (
-                            <TabsContent key={type} value={type} className="h-full mt-0 pb-0">
-                                <ScrollArea className="h-full pr-4">
+                            <TabsContent key={type} value={type} className="h-full mt-0 pb-0 flex flex-col">
+                                <ScrollArea className="flex-1 pr-4">
                                     <div className="space-y-3 pb-20">
                                         {filteredItems.length === 0 ? (
                                             <div className="text-center py-8 text-neutral-400 text-sm italic">
