@@ -60,6 +60,7 @@ export function ScheduleDialog({ open, onOpenChange, onConfirm, isLoading }: Sch
                                 initialFocus
                                 locale={zhTW}
                                 className="rounded-md"
+                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                             />
                         </div>
                     </div>
