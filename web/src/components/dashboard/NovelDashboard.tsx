@@ -4,6 +4,7 @@ import { useChapterStore } from "@/store/useChapterStore"
 import { useNovelStore } from "@/store/useNovelStore"
 import { Button } from "@/components/ui/button"
 import { Plus, GripVertical, FileText, Trash2, Settings, ArrowRight, Users, Eye, ChevronLeft } from "lucide-react"
+import Link from 'next/link'
 import {
     DndContext,
     closestCenter,
@@ -224,12 +225,12 @@ export function NovelDashboard() {
                         </div>
 
                         <div className="flex gap-3">
-                                    <Link href={`/novel?id=${activeNovel.id}`} target="_blank">
-                                        <Button variant="outline" className="border-neutral-300 rounded-full px-6" >
-                                            <Eye className="w-4 h-4 mr-2" />
-                                            預覽
-                                        </Button>
-                                    </Link>
+                            <Link href={`/novel?id=${activeNovel.id}`} target="_blank">
+                                <Button variant="outline" className="border-neutral-300 rounded-full px-6" >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    預覽
+                                </Button>
+                            </Link>
                             <Button onClick={handleAddChapter} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none rounded-full px-6">
                                 <Plus className="w-4 h-4 mr-2" />
                                 新章節
