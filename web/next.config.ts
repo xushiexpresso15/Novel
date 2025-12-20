@@ -20,7 +20,6 @@ const nextConfig: NextConfig = {
       'prosemirror-state': require.resolve('prosemirror-state'),
       'prosemirror-view': require.resolve('prosemirror-view'),
       'prosemirror-transform': require.resolve('prosemirror-transform'),
-      '@tiptap/core': require.resolve('@tiptap/core'),
     }
     return config
   },
