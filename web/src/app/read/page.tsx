@@ -37,15 +37,17 @@ function ReaderContent() {
 
             setIsLoading(true)
             try {
-                // Fetch current chapter
-                const { data: currentData, error: currentError } = await supabase
-                    .from('chapters')
-                    .select('*')
-                    .eq('id', chapterId)
-                    .single()
+                if (chapterId) {
+                    // Fetch specific chapter
+                    const { data: currentData, error: currentError } = await supabase
+                        .from('chapters')
+                        .select('*')
+                        .eq('id', chapterId)
+                        .single()
 
-                if (currentError) throw currentError
-                setChapter(currentData)
+                    if (currentError) throw currentError
+                    setChapter(currentData)
+                }
 
                 // Fetch novel info just for the title
                 const { data: novelData, error: novelError } = await supabase
@@ -60,19 +62,29 @@ function ReaderContent() {
                     setNovel(novelData)
                 }
 
-                // Fetch neighbors for navigation
+                // Fetch neighbors for navigation & First Chapter if needed
                 const { data: allChapters } = await supabase
                     .from('chapters')
-                    .select('id, order')
+                    .select('*') // Need content if we are falling back to first chapter
                     .eq('novel_id', novelId)
                     .order('order', { ascending: true })
 
-                if (allChapters) {
-                    const currentIndex = allChapters.findIndex(c => c.id === chapterId)
-                    setNeighbors({
-                        prev: currentIndex > 0 ? allChapters[currentIndex - 1].id : null,
-                        next: currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1].id : null
-                    })
+                if (allChapters && allChapters.length > 0) {
+                    // If no chapterId provided, use the first one
+                    let currentCh = chapterId ? allChapters.find(c => c.id === chapterId) : allChapters[0]
+
+                    if (!chapterId && currentCh) {
+                        setChapter(currentCh)
+                        // Update URL silently without reload so sharing works? Or just let it be.
+                    }
+
+                    if (currentCh) {
+                        const currentIndex = allChapters.findIndex(c => c.id === currentCh.id)
+                        setNeighbors({
+                            prev: currentIndex > 0 ? allChapters[currentIndex - 1].id : null,
+                            next: currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1].id : null
+                        })
+                    }
                 }
 
             } catch (error) {
@@ -92,7 +104,7 @@ function ReaderContent() {
     }
 
     if (!chapter) {
-        return <div className="min-h-screen flex items-center justify-center">找不到章節</div>
+        return <div className="min-h-screen flex items-center justify-center">找不到章節或該小說尚無內容</div>
     }
 
     return (
@@ -102,10 +114,10 @@ function ReaderContent() {
         >
             {/* Minimal Header */}
             <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-10 shadow-sm">
-                <Link href={`/novel?id=${novelId}`}>
+                <Link href={`/explore`}>
                     <Button variant="ghost" size="sm" className="text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100">
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        目錄
+                        返回探索
                     </Button>
                 </Link>
 

@@ -74,7 +74,7 @@ export default function ExplorePage() {
                             // @ts-ignore
                             const author = novel.profiles || { username: 'Unknown', avatar_url: '' }
                             return (
-                                <Link key={novel.id} href={`/novel?id=${novel.id}`} className="block group h-full">
+                                <Link key={novel.id} href={`/read?novelId=${novel.id}`} className="block group h-full">
                                     <div className="h-full flex flex-col hover:shadow-xl transition-all duration-300 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden">
 
                                         {/* Cover Image Area */}

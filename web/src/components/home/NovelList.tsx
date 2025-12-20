@@ -26,7 +26,9 @@ export function NovelList() {
 
             {/* Top Bar (Minimal) */}
             <div className="fixed top-0 left-0 right-0 z-40 p-6 flex justify-between items-center pointer-events-none">
-                <span className="font-bold text-xl tracking-tight text-slate-900/50 dark:text-white/50">WritePad</span>
+                <Link href="/" className="pointer-events-auto block">
+                    <img src="/Novel/logo.png" alt="WritePad" className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity" />
+                </Link>
                 <div className="pointer-events-auto">
                     <UserProfile />
                 </div>
