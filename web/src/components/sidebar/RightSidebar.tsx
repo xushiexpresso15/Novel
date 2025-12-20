@@ -242,7 +242,7 @@ export function RightSidebar() {
                 </div>
                 <div className="bg-[#E27D60] text-white p-3 rounded-lg shadow-sm flex flex-col items-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">閱讀時間(分)</span>
-                    <span className="text-2xl font-black">12</span>
+                    <span className="text-2xl font-black">{Math.ceil(wordCount / 500)}</span>
                 </div>
             </div>
 
@@ -302,21 +302,25 @@ export function RightSidebar() {
                         </TabsContent>
 
                         {['character', 'location', 'item'].map(type => (
-                            <TabsContent key={type} value={type} className="mt-0 space-y-3 pb-20">
-                                {filteredItems.length === 0 ? (
-                                    <div className="text-center py-8 text-neutral-400 text-sm italic">
-                                        尚無{type === 'character' ? '角色' : type === 'location' ? '地點' : '物品'}資料
+                            <TabsContent key={type} value={type} className="h-full mt-0 pb-0">
+                                <ScrollArea className="h-full pr-4">
+                                    <div className="space-y-3 pb-20">
+                                        {filteredItems.length === 0 ? (
+                                            <div className="text-center py-8 text-neutral-400 text-sm italic">
+                                                尚無{type === 'character' ? '角色' : type === 'location' ? '地點' : '物品'}資料
+                                            </div>
+                                        ) : (
+                                            filteredItems.map(item => (
+                                                <LoreCard
+                                                    key={item.id}
+                                                    item={item}
+                                                    onDelete={() => removeItem(item.id)}
+                                                    onEdit={() => handleOpenEdit(item)}
+                                                />
+                                            ))
+                                        )}
                                     </div>
-                                ) : (
-                                    filteredItems.map(item => (
-                                        <LoreCard
-                                            key={item.id}
-                                            item={item}
-                                            onDelete={() => removeItem(item.id)}
-                                            onEdit={() => handleOpenEdit(item)}
-                                        />
-                                    ))
-                                )}
+                                </ScrollArea>
                             </TabsContent>
                         ))}
                     </div>

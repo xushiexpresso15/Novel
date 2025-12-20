@@ -12,7 +12,6 @@ export function Sidebar() {
 
     const activeNovel = novels.find(n => n.id === selectedNovelId)
     const novelTitle = activeNovel?.title || "未命名小說"
-    const currentChapter = chapters.find(c => c.id === activeChapterId)
 
     const handleAction = (action: string) => {
         toast.success(`${action} 成功`, {
@@ -43,14 +42,8 @@ export function Sidebar() {
                     </Button>
 
                     <div className="flex flex-col items-center mt-8 w-full">
-                        <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">
+                        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest text-center" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                             {novelTitle}
-                        </h2>
-                        <span className="text-2xl text-slate-400 dark:text-slate-600 font-serif italic mb-1">
-                            # {currentChapter?.order}
-                        </span>
-                        <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2 w-full text-center" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                            {currentChapter?.title || "新章節"}
                         </h1>
                     </div>
                 </div>
