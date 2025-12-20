@@ -71,9 +71,12 @@ export function UserProfile() {
                         >
                             {/* Header */}
                             <div className="flex items-center gap-3 p-2 bg-white/50 dark:bg-black/40 rounded-2xl mb-2 border border-black/5 dark:border-white/5">
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                                    {fullName?.slice(0, 1)}
-                                </div>
+                                <Avatar className="h-10 w-10 shrink-0">
+                                    <AvatarImage src={user.user_metadata?.avatar_url} alt={fullName} />
+                                    <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-sm">
+                                        {fullName?.slice(0, 1)}
+                                    </AvatarFallback>
+                                </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold text-sm truncate text-slate-800 dark:text-slate-100">{fullName}</p>
                                     <p className="text-xs text-slate-500 truncate">{user.email}</p>

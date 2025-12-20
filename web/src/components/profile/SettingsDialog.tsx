@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { User, Settings, Palette, ShieldAlert, LogOut, Laptop, Moon, Sun } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
 
 export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
@@ -130,9 +131,12 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                             {activeTab === 'profile' && (
                                 <div className="space-y-8">
                                     <div className="flex items-center gap-6">
-                                        <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-4xl font-bold text-zinc-300 shadow-inner">
-                                            {user?.user_metadata?.full_name?.[0] || 'U'}
-                                        </div>
+                                        <Avatar className="w-24 h-24 shadow-inner">
+                                            <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.full_name} />
+                                            <AvatarFallback className="bg-zinc-100 dark:bg-zinc-800 text-4xl font-bold text-zinc-300">
+                                                {user?.user_metadata?.full_name?.[0] || 'U'}
+                                            </AvatarFallback>
+                                        </Avatar>
                                         <div>
                                             <h4 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{user?.user_metadata?.full_name || '使用者'}</h4>
                                             <p className="text-zinc-500 text-sm">{user?.email}</p>
