@@ -69,8 +69,16 @@ export function NovelSettingsDialog({ open, onOpenChange, novel }: NovelSettings
                 </DialogHeader>
                 <div className="grid gap-6 py-4">
                     <div className="grid gap-2">
-                        <Label>小說名稱</Label>
-                        <Input value={title} onChange={e => setTitle(e.target.value)} />
+                        <div className="flex justify-between items-center">
+                            <Label>小說名稱</Label>
+                            <span className="text-xs text-muted-foreground">{title.length}/25</span>
+                        </div>
+                        <Input
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            maxLength={25}
+                            placeholder="最多25字"
+                        />
                     </div>
 
                     <div className="grid gap-2">
@@ -88,12 +96,16 @@ export function NovelSettingsDialog({ open, onOpenChange, novel }: NovelSettings
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>小說簡介</Label>
+                        <div className="flex justify-between items-center">
+                            <Label>小說簡介</Label>
+                            <span className="text-xs text-muted-foreground">{description.length}/500</span>
+                        </div>
                         <Textarea
-                            placeholder="請輸入小說簡介..."
+                            placeholder="請輸入小說簡介... (最多500字)"
                             value={description}
                             onChange={e => setDescription(e.target.value)}
                             className="h-32 resize-none"
+                            maxLength={500}
                         />
                     </div>
 

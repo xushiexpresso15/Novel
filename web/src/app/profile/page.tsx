@@ -153,8 +153,8 @@ function ProfileContent() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {publicNovels.map((novel, index) => (
-                            <Link key={novel.id} href={`/read?novelId=${novel.id}`}>
-                                <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
+                            <Link key={novel.id} href={`/read?novelId=${novel.id}`} className="block h-full group">
+                                <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden h-full hover:shadow-xl transition-all duration-300 flex flex-col">
 
                                     {/* Cover Image */}
                                     <div className="h-48 w-full relative overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0">
@@ -176,7 +176,7 @@ function ProfileContent() {
                                         <div className="text-xs text-neutral-400 mb-4 bg-neutral-100 dark:bg-neutral-800 inline-block px-2 py-1 rounded self-start">
                                             {novel.genre || '未分類'}
                                         </div>
-                                        <div className="text-sm text-neutral-500 line-clamp-3 mb-4 h-[4.5em] flex-1">
+                                        <div className="text-sm text-neutral-500 line-clamp-3 mb-4 flex-1">
                                             {novel.description || '點擊閱讀更多...'}
                                         </div>
                                         <div className="text-xs text-neutral-400 flex justify-between items-center mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800 w-full">

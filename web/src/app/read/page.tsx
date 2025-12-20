@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen, Calendar, User, AlignLeft, PlayCircle } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen, Calendar, User, AlignLeft, PlayCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { UserProfile } from '@/components/UserProfile'
 import { format } from 'date-fns'
@@ -42,6 +42,7 @@ function ReaderContent() {
     const [chapters, setChapters] = useState<ChapterInfo[]>([])
     const [neighbors, setNeighbors] = useState<{ prev: string | null, next: string | null }>({ prev: null, next: null })
     const [isLoading, setIsLoading] = useState(true)
+    const [isDescExpanded, setIsDescExpanded] = useState(false)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -291,8 +292,30 @@ function ReaderContent() {
                             </div>
                         </div>
 
-                        <div className="prose dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300 mb-8 leading-relaxed whitespace-pre-wrap">
-                            {novel.description || '這本小說還沒有簡介...'}
+                        <div className="bg-white dark:bg-neutral-800/50 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-8 relative group">
+                            <div
+                                className={`prose dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300 leading-relaxed whitespace-pre-wrap transition-all ${!isDescExpanded ? 'line-clamp-5 mask-image-gradient' : ''
+                                    }`}
+                            >
+                                {novel.description || '這本小說還沒有簡介...'}
+                            </div>
+
+                            {(novel.description && novel.description.length > 100) && (
+                                <button
+                                    onClick={() => setIsDescExpanded(!isDescExpanded)}
+                                    className="mt-4 flex items-center gap-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors mx-auto md:mx-0"
+                                >
+                                    {isDescExpanded ? (
+                                        <>
+                                            收起簡介 <ChevronUp className="w-4 h-4" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            顯示完整簡介 <ChevronDown className="w-4 h-4" />
+                                        </>
+                                    )}
+                                </button>
+                            )}
                         </div>
 
                         <div className="mt-auto flex gap-4 justify-center md:justify-start">
