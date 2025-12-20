@@ -7,6 +7,7 @@ import { BookOpen, User, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { UserProfile } from '@/components/UserProfile'
 
 function ProfileContent() {
     const searchParams = useSearchParams()
@@ -40,6 +41,17 @@ function ProfileContent() {
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] dark:bg-neutral-950">
+            {/* Sticky Header */}
+            <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20">
+                <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <Link href="/" className="font-bold text-xl text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                        <span className="bg-indigo-600 text-white p-1 rounded">W</span>
+                        WritePad
+                    </Link>
+                    <UserProfile />
+                </div>
+            </header>
+
             <div className="max-w-5xl mx-auto px-4 py-12">
                 {/* Header Profile Section */}
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">

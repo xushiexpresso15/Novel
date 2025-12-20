@@ -7,11 +7,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loader2, Settings, LogOut, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SettingsDialog } from '@/components/profile/SettingsDialog'
+import { useRouter } from 'next/navigation'
 
 export function UserProfile() {
     const { user, signInWithGoogle, signOut, isLoading } = useAuthStore()
     const [isOpen, setIsOpen] = useState(false)
     const [showSettings, setShowSettings] = useState(false)
+    const router = useRouter()
 
     // Auth state is managed globally by page.tsx
 
@@ -29,7 +31,7 @@ export function UserProfile() {
                 onClick={signInWithGoogle}
                 className="rounded-full bg-white dark:bg-black text-black dark:text-white border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 px-6 shadow-sm"
             >
-                Login
+                登入
             </Button>
         )
     }
@@ -65,11 +67,11 @@ export function UserProfile() {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute right-0 top-14 z-50 w-72 rounded-3xl bg-white/70 dark:bg-zinc-900/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-2xl p-4 flex flex-col gap-2 origin-top-right"
+                            className="absolute right-0 top-14 z-50 w-72 rounded-3xl bg-white/70 dark:bg-[#18181b]/95 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-2xl p-4 flex flex-col gap-2 origin-top-right"
                         >
                             {/* Header */}
-                            <div className="flex items-center gap-3 p-2 bg-white/50 dark:bg-black/20 rounded-2xl mb-2 border border-black/5 dark:border-white/5">
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                            <div className="flex items-center gap-3 p-2 bg-white/50 dark:bg-black/40 rounded-2xl mb-2 border border-black/5 dark:border-white/5">
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                                     {fullName?.slice(0, 1)}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -79,14 +81,22 @@ export function UserProfile() {
                             </div>
 
                             {/* Menu Items */}
-                            <MenuButton icon={Settings} label="Account Settings" onClick={() => { setIsOpen(false); setShowSettings(true); }} />
-                            <MenuButton icon={User} label="My Profile" onClick={() => { setIsOpen(false); setShowSettings(true); }} />
+                            <MenuButton
+                                icon={Settings}
+                                label="帳號設定"
+                                onClick={() => { setIsOpen(false); setShowSettings(true); }}
+                            />
+                            <MenuButton
+                                icon={User}
+                                label="我的主頁"
+                                onClick={() => { setIsOpen(false); router.push(`/profile?id=${user.id}`); }}
+                            />
 
                             <div className="h-px bg-black/5 dark:bg-white/10 my-1" />
 
                             <MenuButton
                                 icon={LogOut}
-                                label="Log Out"
+                                label="登出"
                                 onClick={() => { setIsOpen(false); signOut(); }}
                                 variant="danger"
                             />

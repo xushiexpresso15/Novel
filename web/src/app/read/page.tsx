@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { ArrowLeft, ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+import { UserProfile } from '@/components/UserProfile'
 
 interface ChapterContent {
     id: string
@@ -15,17 +16,23 @@ interface ChapterContent {
     novel_id: string
 }
 
+interface NovelInfo {
+    id: string
+    title: string
+}
+
 function ReaderContent() {
     const searchParams = useSearchParams()
     const novelId = searchParams.get('novelId')
     const chapterId = searchParams.get('chapterId')
 
     const [chapter, setChapter] = useState<ChapterContent | null>(null)
+    const [novel, setNovel] = useState<NovelInfo | null>(null)
     const [neighbors, setNeighbors] = useState<{ prev: string | null, next: string | null }>({ prev: null, next: null })
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        const fetchChapter = async () => {
+        const fetchChapterAndNovel = async () => {
             if (!novelId || !chapterId) return
 
             setIsLoading(true)
@@ -39,6 +46,19 @@ function ReaderContent() {
 
                 if (currentError) throw currentError
                 setChapter(currentData)
+
+                // Fetch novel info just for the title
+                const { data: novelData, error: novelError } = await supabase
+                    .from('novels')
+                    .select('id, title')
+                    .eq('id', novelId)
+                    .single()
+
+                if (novelError) {
+                    console.error('Error fetching novel:', novelError)
+                } else {
+                    setNovel(novelData)
+                }
 
                 // Fetch neighbors for navigation
                 const { data: allChapters } = await supabase
@@ -56,23 +76,23 @@ function ReaderContent() {
                 }
 
             } catch (error) {
-                console.error('Error fetching chapter:', error)
+                console.error('Error fetching data:', error)
             } finally {
                 setIsLoading(false)
             }
         }
 
-        fetchChapter()
+        fetchChapterAndNovel()
     }, [chapterId, novelId])
 
     if (isLoading) {
         return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7] dark:bg-[#1a1a1a]">
-            <div className="animate-pulse text-neutral-400">Loading Chapter...</div>
+            <div className="animate-pulse text-neutral-400">正在載入章節...</div>
         </div>
     }
 
     if (!chapter) {
-        return <div className="min-h-screen flex items-center justify-center">Chapter not found</div>
+        return <div className="min-h-screen flex items-center justify-center">找不到章節</div>
     }
 
     return (
@@ -81,17 +101,22 @@ function ReaderContent() {
             onContextMenu={(e) => e.preventDefault()}
         >
             {/* Minimal Header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 backdrop-blur sticky top-0 z-10">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-10 shadow-sm">
                 <Link href={`/novel?id=${novelId}`}>
-                    <Button variant="ghost" size="sm" className="text-neutral-500">
+                    <Button variant="ghost" size="sm" className="text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         目錄
                     </Button>
                 </Link>
-                <div className="text-sm font-medium text-neutral-500">
-                    {chapter.title}
+
+                {/* Novel Title in Header - Clearer Text */}
+                <div className="text-base font-bold text-neutral-900 dark:text-neutral-100 truncate max-w-[60%] text-center">
+                    {novel?.title || ''}
                 </div>
-                <div className="w-20"></div> {/* Spacer */}
+
+                <div className="w-20 flex justify-end">
+                    <UserProfile />
+                </div>
             </div>
 
             {/* Content Area - Copy Protected */}
@@ -154,7 +179,7 @@ function ReaderContent() {
 
 export default function ReaderPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>載入中...</div>}>
             <ReaderContent />
         </Suspense>
     )

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { BookOpen, Calendar, User } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { UserProfile } from '@/components/UserProfile'
 
 export default function ExplorePage() {
     const { exploreNovels, fetchExploreNovels, isLoading } = usePublicStore()
@@ -40,6 +41,7 @@ export default function ExplorePage() {
                         <Link href="/">
                             <Button variant="ghost">我的書桌</Button>
                         </Link>
+                        <UserProfile />
                     </div>
                 </div>
             </header>

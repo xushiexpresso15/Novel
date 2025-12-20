@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { ArrowLeft, BookOpen, Clock, List } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useSearchParams } from 'next/navigation'
+import { UserProfile } from '@/components/UserProfile'
 
 function NovelLandingContent() {
     const searchParams = useSearchParams()
@@ -30,26 +31,45 @@ function NovelLandingContent() {
         </div>
     }
 
-    if (!novelId) return <div>Invalid Novel ID</div>
+    if (!novelId) return <div>無效的小說 ID</div>
 
     // @ts-ignore - profiles accessed via join
     const author = currentNovel.profiles || { username: 'Unknown', avatar_url: '' }
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] dark:bg-neutral-950">
+            {/* Sticky Header */}
+            <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20">
+                <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <Link href="/" className="font-bold text-xl text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                        <span className="bg-indigo-600 text-white p-1 rounded">W</span>
+                        WritePad
+                    </Link>
+                    <UserProfile />
+                </div>
+            </header>
+
             {/* Hero Section */}
             <div className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
                 <div className="max-w-4xl mx-auto px-6 py-12 md:py-20">
-                    <Link href={`/profile?id=${currentNovel.user_id}`} className="inline-flex items-center text-sm text-neutral-500 hover:text-neutral-800 mb-8 transition-colors">
+                    <Link href={`/profile?id=${currentNovel.user_id}`} className="inline-flex items-center text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200 mb-8 transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         返回作者頁面
                     </Link>
 
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                        {/* Abstract Cover */}
-                        <div className="w-32 h-48 md:w-48 md:h-72 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-xl shrink-0 flex items-center justify-center text-white font-serif text-4xl opacity-90">
-                            {currentNovel.title[0]}
-                        </div>
+                        {/* Cover Image or Abstract Fallback */}
+                        {currentNovel.cover_url ? (
+                            <img
+                                src={currentNovel.cover_url}
+                                alt={currentNovel.title}
+                                className="w-32 h-48 md:w-48 md:h-72 object-cover rounded-lg shadow-xl shrink-0"
+                            />
+                        ) : (
+                            <div className="w-32 h-48 md:w-48 md:h-72 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-xl shrink-0 flex items-center justify-center text-white font-serif text-4xl opacity-90">
+                                {currentNovel.title[0]}
+                            </div>
+                        )}
 
                         <div className="flex-1 space-y-6">
                             <div className="space-y-2">
@@ -62,11 +82,15 @@ function NovelLandingContent() {
                             </div>
 
                             <div className="flex items-center gap-3 text-neutral-600 dark:text-neutral-400">
-                                <Avatar className="w-8 h-8">
-                                    <AvatarImage src={author.avatar_url || ''} />
-                                    <AvatarFallback>{author.username[0]}</AvatarFallback>
-                                </Avatar>
-                                <span className="font-medium">{author.username}</span>
+                                <Link href={`/profile?id=${currentNovel.user_id}`} className="flex items-center gap-2 group hover:opacity-80 transition-opacity">
+                                    <Avatar className="w-8 h-8 ring-2 ring-transparent group-hover:ring-indigo-100 transition-all">
+                                        <AvatarImage src={author.avatar_url || ''} />
+                                        <AvatarFallback>{author.username[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="font-medium group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                        {author.username}
+                                    </span>
+                                </Link>
                                 <span className="text-neutral-300">•</span>
                                 <span className="text-sm">最後更新 {format(new Date(currentNovel.created_at), 'yyyy-MM-dd')}</span>
                             </div>
@@ -135,7 +159,7 @@ function NovelLandingContent() {
 
 export default function NovelLandingPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>載入中...</div>}>
             <NovelLandingContent />
         </Suspense>
     )
