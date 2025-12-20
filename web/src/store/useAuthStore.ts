@@ -47,7 +47,10 @@ export const useAuthStore = create<AuthState>((set) => ({
                 provider: 'google',
                 options: {
                     // Redirect back to the current page
-                    redirectTo: typeof window !== 'undefined' ? window.location.origin + window.location.pathname.replace(/\/$/, '') : undefined
+                    redirectTo: typeof window !== 'undefined' ? window.location.origin + window.location.pathname.replace(/\/$/, '') : undefined,
+                    queryParams: {
+                        prompt: 'select_account'
+                    }
                 }
             })
             if (error) throw error
