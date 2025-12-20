@@ -167,44 +167,25 @@ export function Sidebar() {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-900/20 dark:to-purple-900/20 blur-xl" />
 
                 {/* The "Glass" Layer */}
-                <div className="relative z-10 p-6 bg-white/30 dark:bg-black/20 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm transition-all">
+                <div className="relative z-10 p-6 bg-white/30 dark:bg-black/20 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-sm transition-all flex flex-col items-center justify-center text-center">
 
-                    <div className="flex flex-col gap-3">
-                        {/* Return to Novel Button */}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="-ml-3 w-fit text-slate-500 hover:text-slate-900 hover:bg-white/40 text-xs uppercase tracking-wider font-bold"
-                            onClick={() => setActiveChapter('')} // Clearing ID to trigger Dashboard
-                        >
-                            <ChevronLeft className="w-3 h-3 mr-1" />
-                            Back to Novel
-                        </Button>
+                    {/* Back Button - Absolute Top Left */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-4 left-4 h-8 px-2 text-slate-500 hover:text-slate-900 hover:bg-white/40 text-xs uppercase tracking-wider font-bold"
+                        onClick={() => setActiveChapter('')}
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </Button>
 
-                        <div className="flex items-start justify-between gap-2">
-                            <h1 className="text-xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                                #{novelTitle}
-                            </h1>
-
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-slate-500 hover:text-slate-800 hover:bg-white/40 dark:hover:bg-black/40 rounded-full transition-all shrink-0 -mr-2 -mt-2 active:scale-95"
-                                onClick={() => setSettingsOpen(true)}
-                            >
-                                <Settings className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </div>
+                    <h1 className="mt-8 text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight tracking-tight drop-shadow-sm line-clamp-2 w-full text-center" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                        #{novelTitle}
+                    </h1>
                 </div>
             </div>
 
-            <NovelSettingsDialog
-                open={settingsOpen}
-                onOpenChange={setSettingsOpen}
-                novel={activeNovel}
-                onUpdate={(data) => activeNovel && updateNovel(activeNovel.id, data)}
-            />
+            {/* Note: Settings Dialog is removed from here as requested, moved to Dashboard */}
 
             {/* Action Buttons */}
             <div className="p-4 space-y-3 relative z-10">

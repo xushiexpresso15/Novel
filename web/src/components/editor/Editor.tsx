@@ -123,15 +123,13 @@ export function Editor() {
                             onChange={(e) => activeNovel && updateNovel(activeNovel.id, { title: e.target.value })}
                         />
                         {/* Chapter Title */}
-                        <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground text-lg"># {String(activeChapter?.order ? activeChapter.order + 1 : 1)}</span>
-                            <Input
-                                className="text-xl text-muted-foreground border-none shadow-none px-0 h-auto focus-visible:ring-0 placeholder:text-neutral-300"
-                                placeholder="篇章標題(選填)"
-                                value={activeChapter?.title || ''}
-                                onChange={(e) => activeChapterId && updateChapter(activeChapterId, { title: e.target.value })}
-                            />
-                        </div>
+                        <span className="text-muted-foreground text-xl font-medium mt-1"># {String(activeChapter?.order ? activeChapter.order + 1 : 1)}</span>
+                        <Input
+                            className="text-3xl font-bold text-neutral-800 dark:text-neutral-200 border-none shadow-none px-0 h-auto focus-visible:ring-0 placeholder:text-neutral-300"
+                            placeholder="篇章標題"
+                            value={activeChapter?.title || ''}
+                            onChange={(e) => activeChapterId && updateChapter(activeChapterId, { title: e.target.value })}
+                        />
                     </div>
 
                     <Separator className="mx-12 my-2 w-auto bg-neutral-200" />
