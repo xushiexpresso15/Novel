@@ -294,14 +294,14 @@ function ReaderContent() {
 
                         <div className="bg-white dark:bg-neutral-800/50 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-8 relative group">
                             <div
-                                className={`prose dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300 leading-relaxed whitespace-pre-wrap transition-all ${!isDescExpanded ? 'line-clamp-5 mask-image-gradient' : ''
+                                className={`prose dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300 leading-relaxed whitespace-pre-wrap transition-all ${!isDescExpanded ? 'line-clamp-4 mask-image-gradient' : ''
                                     }`}
                             >
                                 {novel.description || '這本小說還沒有簡介...'}
                             </div>
 
-                            {/* Check if description length > 50 OR has more than 3 lines */}
-                            {(novel.description && (novel.description.length > 50 || novel.description.split('\n').length > 3)) && (
+                            {/* Check if description length > 50 OR has more than 4 lines */}
+                            {(novel.description && (novel.description.length > 50 || novel.description.split('\n').length > 4)) && (
                                 <button
                                     onClick={() => setIsDescExpanded(!isDescExpanded)}
                                     className="mt-4 flex items-center gap-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors mx-auto md:mx-0"

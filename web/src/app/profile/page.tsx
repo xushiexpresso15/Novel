@@ -58,7 +58,7 @@ function ProfileContent() {
         <div className="min-h-screen bg-[#FDFBF7] dark:bg-neutral-950">
             {/* Sticky Header */}
             <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20">
-                <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div className="max-w-5xl mx-auto px-6 md:px-12 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <WritePadLogo className="h-8 w-8" classNameText="text-xl" />
                     </Link>
@@ -66,7 +66,7 @@ function ProfileContent() {
                 </div>
             </header>
 
-            <div className="max-w-5xl mx-auto px-4 py-12">
+            <div className="max-w-5xl mx-auto px-6 md:px-12 py-12">
                 {/* Header Profile Section */}
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                     <Avatar className="w-32 h-32 border-4 border-white shadow-lg shrink-0">
