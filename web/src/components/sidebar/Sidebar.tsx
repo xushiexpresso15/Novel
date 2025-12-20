@@ -223,5 +223,4 @@ export function Sidebar() {
         </div>
     )
 }
-    )
-}
+

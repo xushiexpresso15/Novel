@@ -23,7 +23,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
 function ChapterCard({ chapter, onClick, onDelete }: { chapter: any, onClick: () => void, onDelete: () => void }) {
@@ -103,11 +103,6 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: any, onClick: ()
         </div>
     )
 }
-
-import { useEffect } from "react"
-import { toast } from "sonner"
-
-// ... (ChapterCard component remains same)
 
 export function NovelDashboard() {
     const { chapters, reorderChapters, addChapter, setActiveChapter, deleteChapter, fetchChapters } = useChapterStore()
