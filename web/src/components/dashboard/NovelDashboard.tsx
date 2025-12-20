@@ -70,16 +70,16 @@ function ChapterCard({ chapter, onClick, onDelete }: { chapter: { id: string, ti
                 <div onClick={onClick} className="cursor-pointer flex-1 overflow-hidden">
                     <div className="flex items-center gap-2 mb-3 text-sm font-bold text-neutral-400 uppercase tracking-widest">
                         <span className="bg-neutral-100 dark:bg-neutral-900 px-2 py-1 rounded">
-                            CHAPTER {String(chapter.order).padStart(2, '0')}
+                            CHAPTER {chapter.order}
                         </span>
                     </div>
                     <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-100 line-clamp-1 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {chapter.title}
                     </h3>
-                    <div className="text-sm text-neutral-500 line-clamp-5 leading-relaxed overflow-hidden text-ellipsis relative">
-                        {previewText || <span className="italic text-neutral-300">無內容...</span>}
-                        {/* Gradient fade at bottom for text overflow effect (optional) */}
-                        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white dark:from-neutral-800 to-transparent"></div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-6 leading-relaxed overflow-hidden text-ellipsis relative font-medium">
+                        {previewText || <span className="italic text-neutral-500 opacity-50">無內容...</span>}
+                        {/* Gradient fade at bottom for text overflow effect */}
+                        <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white dark:from-neutral-800 to-transparent"></div>
                     </div>
                 </div>
 
