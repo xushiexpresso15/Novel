@@ -97,12 +97,19 @@ export function InboxDialog() {
 
     }, [messages, user])
 
+    const currentChatMessages = messages.filter(m =>
+        (m.sender_id === user?.id && m.recipient_id === activeConversationId) ||
+        (m.recipient_id === user?.id && m.sender_id === activeConversationId)
+    )
+
     // Auto-scroll to bottom of chat
+    // Only scroll when switching conversation or when message count changes (new message)
+    // This prevents scrolling when polling updates existing messages without adding new ones
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight
         }
-    }, [activeConversationId, messages])
+    }, [activeConversationId, currentChatMessages.length])
 
     // Mark as read when opening conversation
     useEffect(() => {
@@ -118,10 +125,7 @@ export function InboxDialog() {
         setNewMessage("")
     }
 
-    const currentChatMessages = messages.filter(m =>
-        (m.sender_id === user?.id && m.recipient_id === activeConversationId) ||
-        (m.recipient_id === user?.id && m.sender_id === activeConversationId)
-    )
+
 
     const activeConvUser = conversations.find(c => c.userId === activeConversationId)
 
@@ -146,8 +150,8 @@ export function InboxDialog() {
                                     key={conv.userId}
                                     onClick={() => setActiveConversation(conv.userId)}
                                     className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors ${activeConversationId === conv.userId
-                                            ? 'bg-indigo-50 dark:bg-indigo-900/20'
-                                            : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                                        ? 'bg-indigo-50 dark:bg-indigo-900/20'
+                                        : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
                                         }`}
                                 >
                                     <Avatar className="w-10 h-10">

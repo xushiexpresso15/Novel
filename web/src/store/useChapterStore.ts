@@ -39,7 +39,8 @@ export const useChapterStore = create<ChapterStore>((set, get) => ({
     setChapters: (chapters) => set({ chapters }),
 
     fetchChapters: async (novelId: string) => {
-        set({ isLoading: true })
+        // Clear previous chapters immediately to avoid "ghost" chapters from previous novel
+        set({ isLoading: true, chapters: [] })
         const { data, error } = await supabase
             .from('chapters')
             .select('*')
