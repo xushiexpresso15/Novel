@@ -164,6 +164,10 @@ export function NovelDashboard() {
         }
     }, [selectedNovelId, fetchChapters])
 
+    // Strict filtering to ensure we don't show "ghost" chapters from previous selection
+    // that might still be in the store during transition.
+    const displayChapters = chapters.filter(c => c.novel_id === selectedNovelId)
+
     const handleAddChapter = async () => {
         if (!selectedNovelId) {
             toast.error("請先選擇小說")
@@ -337,11 +341,11 @@ export function NovelDashboard() {
                     onDragEnd={handleDragEnd}
                 >
                     <SortableContext
-                        items={chapters.map(c => c.id)}
+                        items={displayChapters.map(c => c.id)}
                         strategy={rectSortingStrategy}
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {chapters.map((chapter) => (
+                            {displayChapters.map((chapter) => (
                                 <ChapterCard
                                     key={chapter.id}
                                     chapter={chapter}
